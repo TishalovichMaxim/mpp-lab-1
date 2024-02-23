@@ -1,0 +1,16 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=C_003A_005CUsers_005Ctisha_005CRiderProjects_005Cmpp_002Dlab_002D1_005CTests_005CTestFiles_005Cmultithreaded_005Ftrace_005Fresult_002Ejson/@EntryIndexedValue">True</s:Boolean>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=5f85bbba_002Dabfb_002D4c35_002D92ff_002D04ec31835f86/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="MethodsTracesTimeCounterTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;MSTest::82D52FBE-9E51-48EA-9C2B-DC937CD512BE::net8.0::Tests.MethodsTracesTimeCounterTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;MSTest::82D52FBE-9E51-48EA-9C2B-DC937CD512BE::net8.0::Tests.TracerTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;MSTest::82D52FBE-9E51-48EA-9C2B-DC937CD512BE::net8.0::Tests.SerializationTest.MultiThreaded_TraceResult_Json_Serialization&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=bb1bfb14_002D9368_002D431a_002Db090_002Da7477c113510/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="UnitTest1" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;MSTest::82D52FBE-9E51-48EA-9C2B-DC937CD512BE::net8.0::Tests.MethodsTracesTimeCounterTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;MSTest::82D52FBE-9E51-48EA-9C2B-DC937CD512BE::net8.0::Tests.TracerTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;MSTest::82D52FBE-9E51-48EA-9C2B-DC937CD512BE::net8.0::Tests.SerializationTest&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
