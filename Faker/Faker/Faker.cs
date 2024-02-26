@@ -13,13 +13,23 @@ public class Faker
         _generators[typeof(long)] = new LongGenerator();
     }
     
-    public bool IsDto(Type t)
+    private bool IsDto(Type t)
     {
         Attribute? attribute = t.GetCustomAttribute(typeof(DtoAttribute));
         return attribute is not null;
     }
     
-    public ConstructorInfo GetConstructor(Type t)
+    private FieldInfo[] GetPublicFields(Type t)
+    {
+        return t.GetFields(BindingFlags.Instance | BindingFlags.Public);
+    }
+
+    private PropertyInfo[] GetPublicProperties(Type t)
+    {
+        return t.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+    }
+    
+    private ConstructorInfo GetConstructor(Type t)
     {
         ConstructorInfo[] constructors = t.GetConstructors();
         ConstructorInfo chosenConstructor =  constructors[0];
@@ -39,13 +49,52 @@ public class Faker
         return chosenConstructor;
     }
 
-    public FieldInfo[] GetPublicFields(Type t)
+    private object CreateDto(Type t)
     {
-        return t.GetFields(BindingFlags.Instance | BindingFlags.Public);
+        ConstructorInfo constructorInfo = GetConstructor(t);
+        ParameterInfo[] parametersInfos = constructorInfo.GetParameters();
+        List<object> constructorParameters = new();
+
+        foreach (ParameterInfo parameterInfo in parametersInfos)
+        {
+            constructorParameters .Add(Create(parameterInfo.ParameterType));
+        }
+
+        object res = constructorInfo.Invoke(constructorParameters.ToArray());
+        
+        FieldInfo[] fieldsInfos = GetPublicFields(t);
+        foreach (FieldInfo fieldInfo in fieldsInfos)
+        {
+            fieldInfo.SetValue(res, Create(fieldInfo.FieldType));
+        }
+
+        PropertyInfo[] propertiesInfos = GetPublicProperties(t);
+        foreach (PropertyInfo propertyInfo in propertiesInfos)
+        {
+            propertyInfo.SetValue(res, Create(propertyInfo.PropertyType));
+        }
+
+        return res;
+    }
+    
+    private object Create(Type t)
+    {
+        if (IsDto(t))
+        {
+            return CreateDto(t);
+        }
+
+        if (_generators.ContainsKey(t))
+        {
+            IGenerator generator = _generators[t];
+            return generator.Generate();
+        }
+
+        return Activator.CreateInstance(t); //fix warning
     }
 
-    public PropertyInfo[] GetPublicProperties(Type t)
+    public T Create<T>()
     {
-        return t.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+        return (T) Create(typeof(T));
     }
 }
