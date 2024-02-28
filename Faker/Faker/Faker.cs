@@ -6,11 +6,14 @@ namespace DtoGenerator;
 public class Faker
 {
     private readonly Dictionary<Type, IGenerator> _generators = new();
+
+    private readonly ISet<Type> _generatedTypes = new HashSet<Type>();
     
     public Faker()
     {
         _generators[typeof(int)] = new IntGenerator();
         _generators[typeof(long)] = new LongGenerator();
+        //_generators[typeof(string)] = new StringGenerator();
     }
     
     private bool IsDto(Type t)
@@ -76,25 +79,36 @@ public class Faker
 
         return res;
     }
-    
-    private object Create(Type t)
-    {
-        if (IsDto(t))
-        {
-            return CreateDto(t);
-        }
 
+    private object? CreateNotDto(Type t)
+    {
         if (_generators.ContainsKey(t))
         {
             IGenerator generator = _generators[t];
             return generator.Generate();
         }
 
-        return Activator.CreateInstance(t); //fix warning
+        return default;
     }
+    
+    private object? Create(Type t)
+    {
+        if (!_generatedTypes.Add(t))
+        {
+            return CreateNotDto(t);
+        }
 
+        if (IsDto(t))
+        {
+            return CreateDto(t);
+        }
+
+        return CreateNotDto(t);
+    }
+    
     public T Create<T>()
     {
+        _generatedTypes.Clear();
         return (T) Create(typeof(T));
     }
 }
