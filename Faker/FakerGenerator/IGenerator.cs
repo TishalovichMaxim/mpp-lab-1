@@ -1,4 +1,4 @@
-namespace DtoGenerator.Generators;
+﻿namespace FakerGenerator;
 
 public interface IGenerator
 {

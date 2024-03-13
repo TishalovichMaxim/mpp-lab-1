@@ -1,5 +1,8 @@
-namespace DtoGenerator.Generators;
+using FakerGenerator;
 
+namespace DtoGenerator.Generator;
+
+[Generator(typeof(long))]
 public class LongGenerator : IGenerator
 {
     private readonly Random _random = new Random();

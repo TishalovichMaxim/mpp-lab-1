@@ -1,5 +1,8 @@
-namespace DtoGenerator.Generators;
+using FakerGenerator;
 
+namespace DtoGenerator.Generator;
+
+[Generator(typeof(int))]
 public class IntGenerator : IGenerator
 {
     private readonly Random _random = new Random();

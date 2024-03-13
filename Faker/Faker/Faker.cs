@@ -1,5 +1,6 @@
 using System.Reflection;
-using DtoGenerator.Generators;
+using DtoGenerator.Generator;
+using FakerGenerator;
 
 namespace DtoGenerator;
 
@@ -8,14 +9,17 @@ public class Faker
     private readonly Dictionary<Type, IGenerator> _generators = new();
 
     private readonly ISet<Type> _generatedTypes = new HashSet<Type>();
-    
-    public Faker()
+
+    private readonly GeneratorsLoader _loader;
+
+    public Faker(GeneratorsLoader loader)
     {
+        _loader = loader;
+
         _generators[typeof(int)] = new IntGenerator();
         _generators[typeof(long)] = new LongGenerator();
-        //_generators[typeof(string)] = new StringGenerator();
     }
-    
+
     private bool IsDto(Type t)
     {
         Attribute? attribute = t.GetCustomAttribute(typeof(DtoAttribute));
@@ -60,7 +64,7 @@ public class Faker
 
         foreach (ParameterInfo parameterInfo in parametersInfos)
         {
-            constructorParameters .Add(Create(parameterInfo.ParameterType));
+            constructorParameters.Add(Create(parameterInfo.ParameterType));
         }
 
         object res = constructorInfo.Invoke(constructorParameters.ToArray());
@@ -106,9 +110,21 @@ public class Faker
         return CreateNotDto(t);
     }
     
+    public void LoadPlugins(String[] plugins)
+    {
+        foreach (String plugin in plugins)
+        {
+            Dictionary<Type, IGenerator> pluginGenerators = _loader.LoadGenerators(plugin);
+            foreach (Type t in pluginGenerators.Keys)
+            {
+                _generators[t] = pluginGenerators[t];
+            }
+        }
+    }
+
     public T Create<T>()
     {
         _generatedTypes.Clear();
-        return (T) Create(typeof(T));
+        return (T)Create(typeof(T));
     }
 }
