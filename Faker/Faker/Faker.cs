@@ -1,4 +1,5 @@
 using System.Reflection;
+using DtoGenerator.Config;
 using DtoGenerator.Generator;
 using FakerGenerator;
 
@@ -12,7 +13,9 @@ public class Faker
 
     private readonly GeneratorsLoader _loader;
 
-    public Faker(GeneratorsLoader loader)
+    private readonly Dictionary<>
+
+    public Faker(GeneratorsLoader loader, FakerConfig fakerConfig)
     {
         _loader = loader;
 
