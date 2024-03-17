@@ -3,7 +3,12 @@ namespace DtoGenerator.Generator;
 [Generator(typeof(long))]
 public class LongGenerator : IGenerator
 {
-    private readonly Random _random = new Random();
+    private readonly Random _random;
+
+    public LongGenerator()
+    {
+        _random = new Random();
+    }
     
     public object Generate(Type t, Faker faker)
     {

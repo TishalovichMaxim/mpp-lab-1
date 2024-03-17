@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 
 namespace DtoGenerator.Generator;
 
@@ -28,7 +23,7 @@ public class ListGenerator : IGenerator
         MethodInfo methodInfo = typeof(ListGenerator).GetMethod("_genenerateList")!;
 
         MethodInfo genericMethodInfo = methodInfo.MakeGenericMethod(baseType);
-        object[] args = [5, faker];
+        object[] args = [SIZE, faker];
 
         return genericMethodInfo.Invoke(this, args)!;
     }
