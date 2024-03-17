@@ -1,7 +1,7 @@
 using System.Reflection;
+using System.Reflection.Metadata.Ecma335;
 using DtoGenerator.Config;
 using DtoGenerator.Generator;
-using FakerGenerator;
 
 namespace DtoGenerator;
 
@@ -13,7 +13,7 @@ public class Faker
 
     private readonly GeneratorsLoader _loader;
 
-    private readonly Dictionary<>
+    private readonly Dictionary<Type, Dictionary<(string, Type), IGenerator>> _configGenerators;
 
     public Faker(GeneratorsLoader loader, FakerConfig fakerConfig)
     {
@@ -21,6 +21,10 @@ public class Faker
 
         _generators[typeof(int)] = new IntGenerator();
         _generators[typeof(long)] = new LongGenerator();
+        _generators[typeof(Uri)] = new UriGenerator();
+        _generators[typeof(List<>)] = new ListGenerator();
+
+        _configGenerators = fakerConfig.ConfigGenerators;
     }
 
     private bool IsDto(Type t)
@@ -67,7 +71,25 @@ public class Faker
 
         foreach (ParameterInfo parameterInfo in parametersInfos)
         {
-            constructorParameters.Add(Create(parameterInfo.ParameterType));
+            string? paramName = parameterInfo.Name;
+            if (paramName == null)
+            {
+                continue;
+            }
+
+            (string, Type) paramKey = (paramName, parameterInfo.ParameterType);
+
+            //refactor this
+            if (_configGenerators.ContainsKey(t)
+                && _configGenerators[t].ContainsKey(paramKey))
+            {
+                IGenerator generator = _configGenerators[t][paramKey];
+                constructorParameters.Add(generator.Generate(t, this));
+            }
+            else
+            {
+                constructorParameters.Add(Create(parameterInfo.ParameterType));
+            }
         }
 
         object res = constructorInfo.Invoke(constructorParameters.ToArray());
@@ -75,13 +97,38 @@ public class Faker
         FieldInfo[] fieldsInfos = GetPublicFields(t);
         foreach (FieldInfo fieldInfo in fieldsInfos)
         {
-            fieldInfo.SetValue(res, Create(fieldInfo.FieldType));
+            (string, Type) paramKey = (fieldInfo.Name, fieldInfo.FieldType);
+
+            //refactor this
+            if (_configGenerators.ContainsKey(t)
+                && _configGenerators[t].ContainsKey(paramKey))
+            {
+                IGenerator generator = _configGenerators[t][paramKey];
+                fieldInfo.SetValue(res, generator.Generate(t, this));
+            }
+            else
+            {
+                fieldInfo.SetValue(res, Create(fieldInfo.FieldType));
+            }
+
         }
 
         PropertyInfo[] propertiesInfos = GetPublicProperties(t);
         foreach (PropertyInfo propertyInfo in propertiesInfos)
         {
-            propertyInfo.SetValue(res, Create(propertyInfo.PropertyType));
+            (string, Type) paramKey = (propertyInfo.Name, propertyInfo.PropertyType);
+
+            //refactor this
+            if (_configGenerators.ContainsKey(t)
+                && _configGenerators[t].ContainsKey(paramKey))
+            {
+                IGenerator generator = _configGenerators[t][paramKey];
+                propertyInfo.SetValue(res, generator.Generate(t, this));
+            }
+            else
+            {
+                propertyInfo.SetValue(res, Create(propertyInfo.PropertyType));
+            }
         }
 
         return res;
@@ -89,10 +136,16 @@ public class Faker
 
     private object? CreateNotDto(Type t)
     {
-        if (_generators.ContainsKey(t))
+        Type genericType = t;
+        if (t.IsGenericType)
         {
-            IGenerator generator = _generators[t];
-            return generator.Generate();
+            genericType = t.GetGenericTypeDefinition();
+        }
+
+        if (_generators.ContainsKey(genericType))
+        {
+            IGenerator generator = _generators[genericType];
+            return generator.Generate(t, this);
         }
 
         return default;
@@ -113,9 +166,9 @@ public class Faker
         return CreateNotDto(t);
     }
     
-    public void LoadPlugins(String[] plugins)
+    public void LoadPlugins(string[] plugins)
     {
-        foreach (String plugin in plugins)
+        foreach (string plugin in plugins)
         {
             Dictionary<Type, IGenerator> pluginGenerators = _loader.LoadGenerators(plugin);
             foreach (Type t in pluginGenerators.Keys)

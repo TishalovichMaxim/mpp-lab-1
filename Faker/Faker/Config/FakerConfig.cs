@@ -5,13 +5,14 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using FakerGenerator;
+using DtoGenerator.Generator;
 
 namespace DtoGenerator.Config;
 
 public class FakerConfig
 {
-    private Dictionary<Type, Dictionary<(string, Type), IGenerator>> _configGenerators = new();
+    public Dictionary<Type, Dictionary<(string, Type), IGenerator>> ConfigGenerators
+    { get; } = new();
 
     public void Add<T, V, G>(Expression<Func<T, V>> expression)
     {
@@ -25,11 +26,11 @@ public class FakerConfig
         string memberName = memberExpression.Member.Name;
         string constructorParameterName = memberName[..1].ToLower() + memberName[1..];
         
-        if (!_configGenerators.ContainsKey(typeof(T)))
+        if (!ConfigGenerators.ContainsKey(typeof(T)))
         {
-            _configGenerators[typeof(T)] = new Dictionary<(string, Type), IGenerator>();
+            ConfigGenerators[typeof(T)] = new Dictionary<(string, Type), IGenerator>();
         }
 
-        _configGenerators[typeof(T)][(constructorParameterName, typeof(V))] = (IGenerator)Activator.CreateInstance(typeof(G))!;
+        ConfigGenerators[typeof(T)][(constructorParameterName, typeof(V))] = (IGenerator)Activator.CreateInstance(typeof(G))!;
     }
 }
