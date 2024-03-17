@@ -8,7 +8,7 @@ using Tests.ExampleClasses;
 namespace Tests;
 
 [TestClass]
-public class UnitTest
+public class FakerTests
 {
     [TestMethod]
     public void TestCyclicDependency()
@@ -20,5 +20,16 @@ public class UnitTest
         person.Dad.Should().BeNull();
     }
 
-    
+    [TestMethod]    
+    public void TestLoadingPlugins()
+    {
+        Faker faker = new Faker(new GeneratorsLoader(), new FakerConfig());
+        faker.LoadPlugins([
+            "C:\\Users\\tisha\\BSUIR\\sem6\\Mpp\\Labs\\Faker\\GeneratorsPlugin\\bin\\Debug\\net8.0\\GeneratorsPlugin.dll"
+            ]);
+
+        string generatedValue = faker.Create<string>();
+
+        generatedValue.Should().Be("Some Test Value");
+    }
 }
