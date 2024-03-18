@@ -80,7 +80,6 @@ public class Faker
             (string name, Type type) paramKey = (paramName, parameterInfo.ParameterType);
             paramKey.name = paramKey.name[..1].ToUpper() + paramKey.name[1..];
 
-            //refactor this
             if (_configGenerators.ContainsKey(t)
                 && _configGenerators[t].ContainsKey(paramKey))
             {
@@ -100,7 +99,6 @@ public class Faker
         {
             (string, Type) paramKey = (fieldInfo.Name, fieldInfo.FieldType);
 
-            //refactor this
             if (_configGenerators.ContainsKey(t)
                 && _configGenerators[t].ContainsKey(paramKey))
             {
@@ -119,7 +117,6 @@ public class Faker
         {
             (string, Type) paramKey = (propertyInfo.Name, propertyInfo.PropertyType);
 
-            //refactor this
             if (_configGenerators.ContainsKey(t)
                 && _configGenerators[t].ContainsKey(paramKey))
             {
@@ -135,18 +132,18 @@ public class Faker
         return res;
     }
 
-    private object? CreateNotDto(Type t)
+    private object? CreateNotDto(Type concreteType)
     {
-        Type genericType = t;
-        if (t.IsGenericType)
+        Type type = concreteType;
+        if (concreteType.IsGenericType)
         {
-            genericType = t.GetGenericTypeDefinition();
+            type = concreteType.GetGenericTypeDefinition();
         }
 
-        if (_generators.ContainsKey(genericType))
+        if (_generators.ContainsKey(type))
         {
-            IGenerator generator = _generators[genericType];
-            return generator.Generate(t, this);
+            IGenerator generator = _generators[type];
+            return generator.Generate(concreteType, this);
         }
 
         return default;
