@@ -48,6 +48,16 @@ public class FakerTests
     }
 
     [TestMethod]
+    public void TestGeneratingClassWithoutGenerator()
+    {
+        Faker faker = new(new GeneratorsLoader(), new FakerConfig());
+
+        ClassWIthoutGenerator o = faker.Create<ClassWIthoutGenerator>();
+
+        o.Should().BeNull();
+    }
+
+    [TestMethod]
     public void TestConfig()
     {
         FakerConfig fakerConfig = new();
