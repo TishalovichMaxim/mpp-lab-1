@@ -1,9 +1,9 @@
-using System.Reflection;
 using DtoGenerator;
 using DtoGenerator.Config;
 using DtoGenerator.Generator;
 using FluentAssertions;
 using Tests.ExampleClasses;
+using Tests.ExampleGenerators;
 
 namespace Tests;
 
@@ -20,7 +20,7 @@ public class FakerTests
         person.Dad.Should().BeNull();
     }
 
-    [TestMethod]    
+    [TestMethod]
     public void TestLoadingPlugins()
     {
         Faker faker = new Faker(new GeneratorsLoader(), new FakerConfig());
@@ -31,5 +31,33 @@ public class FakerTests
         string generatedValue = faker.Create<string>();
 
         generatedValue.Should().Be("Some Test Value");
+    }
+
+    [TestMethod]
+    public void TestListGeneration()
+    {
+        Faker faker = new Faker(new GeneratorsLoader(), new FakerConfig());
+        List<Person> people = faker.Create<List<Person>>();
+        foreach (Person person in people)
+        {
+            person.Name.Should().NotBeNull();
+        }
+
+        List<int> ints = faker.Create<List<int>>();
+        ints.Should().NotBeNull();
+    }
+
+    [TestMethod]
+    public void TestConfig()
+    {
+        FakerConfig fakerConfig = new();
+
+        fakerConfig.Add<Person, string, NameGenerator>(person => person.Name);
+
+        Faker faker = new(new GeneratorsLoader(), fakerConfig);
+
+        Person person = faker.Create<Person>();
+
+        person.Name.Should().Be("SomeRandomName");
     }
 }
