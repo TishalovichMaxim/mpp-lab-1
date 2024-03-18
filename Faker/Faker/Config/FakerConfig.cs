@@ -24,13 +24,12 @@ public class FakerConfig
 
         MemberExpression memberExpression = (MemberExpression)expression.Body;
         string memberName = memberExpression.Member.Name;
-        string constructorParameterName = memberName[..1].ToLower() + memberName[1..];
         
         if (!ConfigGenerators.ContainsKey(typeof(T)))
         {
             ConfigGenerators[typeof(T)] = new Dictionary<(string, Type), IGenerator>();
         }
 
-        ConfigGenerators[typeof(T)][(constructorParameterName, typeof(V))] = (IGenerator)Activator.CreateInstance(typeof(G))!;
+        ConfigGenerators[typeof(T)][(memberName, typeof(V))] = (IGenerator)Activator.CreateInstance(typeof(G))!;
     }
 }

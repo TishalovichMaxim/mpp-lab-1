@@ -1,5 +1,4 @@
 using System.Reflection;
-using System.Reflection.Metadata.Ecma335;
 using DtoGenerator.Config;
 using DtoGenerator.Generator;
 
@@ -23,6 +22,7 @@ public class Faker
         _generators[typeof(long)] = new LongGenerator();
         _generators[typeof(Uri)] = new UriGenerator();
         _generators[typeof(List<>)] = new ListGenerator();
+        _generators[typeof(string)] = new StringGenerator();
 
         _configGenerators = fakerConfig.ConfigGenerators;
     }
@@ -77,7 +77,8 @@ public class Faker
                 continue;
             }
 
-            (string, Type) paramKey = (paramName, parameterInfo.ParameterType);
+            (string name, Type type) paramKey = (paramName, parameterInfo.ParameterType);
+            paramKey.name = paramKey.name[..1].ToUpper() + paramKey.name[1..];
 
             //refactor this
             if (_configGenerators.ContainsKey(t)
@@ -151,19 +152,25 @@ public class Faker
         return default;
     }
     
-    private object? Create(Type t)
+    internal object? Create(Type t)
     {
         if (!_generatedTypes.Add(t))
         {
             return CreateNotDto(t);
         }
 
+        object? res;
         if (IsDto(t))
         {
-            return CreateDto(t);
+            res = CreateDto(t);
+        }
+        else
+        {
+            res = CreateNotDto(t);
         }
 
-        return CreateNotDto(t);
+        _generatedTypes.Remove(t);
+        return res;
     }
     
     public void LoadPlugins(string[] plugins)
@@ -180,7 +187,6 @@ public class Faker
 
     public T Create<T>()
     {
-        _generatedTypes.Clear();
         return (T)Create(typeof(T));
     }
 }
