@@ -88,7 +88,7 @@ public class Faker
             }
             else
             {
-                constructorParameters.Add(Create(parameterInfo.ParameterType));
+                constructorParameters.Add(Create(parameterInfo.ParameterType)!);
             }
         }
 
@@ -184,6 +184,6 @@ public class Faker
 
     public T Create<T>()
     {
-        return (T)Create(typeof(T));
+        return (T)Create(typeof(T))!;
     }
 }
