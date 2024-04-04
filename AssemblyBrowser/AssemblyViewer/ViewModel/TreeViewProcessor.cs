@@ -40,36 +40,40 @@ public class TreeViewProcessor
 
         string name = methodInfo.Name;
 
-        string accessLevel;
+        string accessLevel = "";
 
         if (methodInfo.IsPublic)
         {
             accessLevel = "public";
         }
-        else if (methodInfo.IsPrivate)
+        else if (methodInfo.IsFamilyOrAssembly)
         {
-            accessLevel = "private";
-        }
+            accessLevel = "protected internal";
+        } 
+        else if (methodInfo.IsAssembly)
+        {
+            accessLevel = "internal";
+        } 
         else if (methodInfo.IsFamily)
         {
             accessLevel = "protected";
         }
         else if (methodInfo.IsFamilyAndAssembly)
         {
-            accessLevel = "internal protected";
+            accessLevel = "protected private";
         }
-        else if (methodInfo.IsFamilyOrAssembly)
+        else if (methodInfo.IsPrivate)
         {
-            accessLevel = "internal";
-        } else
-        {
-            //IsPublic
-            accessLevel = "public";
+            accessLevel = "private";
         }
 
         string? abstractModifier = methodInfo.IsAbstract ? "abstract" : null;
 
         string? sealedModifier = methodInfo.IsFinal ? "sealed" : null;
+
+        string? staticModifier = methodInfo.IsStatic ? "static" : null;
+
+        string? virtualModifier = methodInfo.IsVirtual ? "virtual" : null;
 
         string returnValueTypeName = methodInfo.ReturnType.Name;
 
@@ -77,6 +81,18 @@ public class TreeViewProcessor
 
         sb.Append(accessLevel);
         sb.Append(" ");
+
+        if (staticModifier != null)
+        {
+            sb.Append(staticModifier);
+            sb.Append(" ");
+        }
+
+        if (virtualModifier != null)
+        {
+            sb.Append(virtualModifier);
+            sb.Append(" ");
+        }
 
         if (abstractModifier != null)
         {
