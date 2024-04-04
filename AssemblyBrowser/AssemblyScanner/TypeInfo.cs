@@ -12,21 +12,18 @@ public class TypeInfo
 
     public List<FieldInfo> Fields;
 
-    public TypeInfo(string typeName)
-    {
-        Methods = new List<MethodInfo>();
-        Properties = new List<PropertyInfo>();
-        Fields = new List<FieldInfo>();
-
-        TypeName = typeName;
-    }
+    public List<MethodInfo> ExtensionMethods;
 
     public TypeInfo(Type t)
     {
         TypeName = t.Name;
 
-        Methods = t.GetMethods().ToList();
+        Methods = t.GetNotExtensionMethods();
+
         Properties = t.GetProperties().ToList();
+
         Fields = t.GetFields().ToList();
+
+        ExtensionMethods = new List<MethodInfo>();
     }
 }

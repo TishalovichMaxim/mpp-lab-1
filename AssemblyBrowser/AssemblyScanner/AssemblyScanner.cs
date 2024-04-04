@@ -4,9 +4,50 @@ using System.Reflection;
 
 public class AssemblyScanner
 {
-    private void ProcessType(NamespaceInfo namespaceInfo, Type t)
+    private List<MethodInfo> _extensionMethods = new();
+
+    void ProcessType(NamespaceInfo namespaceInfo, Type t)
     {
-        string? nameSpace = t.Namespace;
+        if (t.IsStaticClass())
+        {
+            List<MethodInfo> staticMethods = t.GetExtensionMethods();
+            _extensionMethods.AddRange(staticMethods);
+        }
+
+        string? fullName = t.FullName;
+        if (fullName is null)
+        {
+            return;
+        }
+
+        string[] parts = fullName.Split('.');
+
+        NamespaceInfo currNamespaceInfo = namespaceInfo;
+
+        for (int i = 0; i < parts.Length - 1; i++)
+        { 
+            if (currNamespaceInfo.NestedNamespaces.ContainsKey(parts[i]))
+            {
+                currNamespaceInfo = currNamespaceInfo.NestedNamespaces[parts[i]];
+            }
+            else
+            {
+                NamespaceInfo temp = currNamespaceInfo; 
+                currNamespaceInfo = new NamespaceInfo();
+                temp.NestedNamespaces[parts[i]] = currNamespaceInfo;
+            }
+        }
+
+        currNamespaceInfo.Types[parts.Last()] = new TypeInfo(t);
+    }
+
+    private void ProcessExtensionMethod(NamespaceInfo root, MethodInfo methodInfo)
+    {
+        Type extendedClass = methodInfo
+                                .GetParameters()[0]
+                                .ParameterType;
+
+        string? nameSpace = extendedClass.FullName;
         if (nameSpace is null)
         {
             return;
@@ -14,28 +55,37 @@ public class AssemblyScanner
 
         string[] parts = nameSpace.Split('.');
 
-        NamespaceInfo currNamespaceInfo = namespaceInfo;
+        NamespaceInfo currNamespaceInfo = root;
 
-        foreach (string part in parts)
-        { 
-            if (currNamespaceInfo.NestedNamespaces.ContainsKey(part))
+        for (int i = 0; i < parts.Length - 1; i++)
+        {
+            if (currNamespaceInfo.NestedNamespaces.ContainsKey(parts[i]))
             {
-                currNamespaceInfo = currNamespaceInfo.NestedNamespaces[part];
+                currNamespaceInfo = currNamespaceInfo.NestedNamespaces[parts[i]];
             }
             else
             {
-                NamespaceInfo temp = currNamespaceInfo; 
-                currNamespaceInfo = new NamespaceInfo();
-                temp.NestedNamespaces.Add(part, currNamespaceInfo);
+                return;
             }
         }
 
-        currNamespaceInfo.Types.Add(new TypeInfo(t));
+        TypeInfo extendedClassTypeInfo = currNamespaceInfo.Types[parts.Last()];
+        extendedClassTypeInfo.ExtensionMethods.Add(methodInfo);
     }
 
-    public NamespaceInfo Scan(string assemblyPath)
+    private void SetExtenstionMethods(NamespaceInfo root)
     {
-        NamespaceInfo res = new();
+        foreach (MethodInfo methodInfo in _extensionMethods)
+        {
+            ProcessExtensionMethod(root, methodInfo);
+        }
+    }
+
+    public Dictionary<string, NamespaceInfo> Scan(string assemblyPath)
+    {
+        _extensionMethods.Clear();
+
+        NamespaceInfo root = new();
 
         Assembly assembly = Assembly.LoadFile(assemblyPath);
 
@@ -43,10 +93,12 @@ public class AssemblyScanner
 
         foreach (Type type in types)
         {
-            ProcessType(res, type);
+            ProcessType(root, type);
         }
 
-        return res;
+        SetExtenstionMethods(root);
+
+        return root.NestedNamespaces;
     }
 }
 

@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Windows.Controls;
 using AssemblyScannerLib;
@@ -137,6 +136,11 @@ public class TreeViewProcessor
             curr.Items.Add(ProcessMethodInfo(methodInfo));
         }
 
+        foreach (MethodInfo methodInfo in typeInfo.ExtensionMethods)
+        {
+            curr.Items.Add(ProcessMethodInfo(methodInfo));
+        }
+
         return curr;
     }
 
@@ -152,7 +156,7 @@ public class TreeViewProcessor
             curr.Items.Add(nested);
         }
 
-        foreach (TypeInfo typeInfo in namespaceInfo.Types)
+        foreach (TypeInfo typeInfo in namespaceInfo.Types.Values)
         {
             TreeViewItem nested = ProcessTypeInfo(typeInfo);
             curr.Items.Add(nested);
