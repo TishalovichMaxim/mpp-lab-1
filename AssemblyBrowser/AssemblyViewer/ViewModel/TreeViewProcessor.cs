@@ -14,7 +14,7 @@ public class TreeViewProcessor
 
         string name = fieldInfo.Name;
 
-        string type = fieldInfo.GetType().Name;
+        string type = fieldInfo.FieldType.Name;
 
         res.Header = $"field: {type} {name}";
 
@@ -27,14 +27,14 @@ public class TreeViewProcessor
 
         string name = propertyInfo.Name;
 
-        string type = propertyInfo.GetType().Name;
+        string type = propertyInfo.PropertyType.Name;
 
         res.Header = $"property: {type} {name}";
 
         return res;
     }
 
-    private TreeViewItem ProcessMethodInfo(MethodInfo methodInfo)
+    private TreeViewItem ProcessMethodInfo(MethodInfo methodInfo, bool isExtension = false)
     {
         TreeViewItem res = new TreeViewItem();
 
@@ -100,6 +100,11 @@ public class TreeViewProcessor
         sb.Append(name);
         sb.Append("(");
 
+        if (isExtension)
+        {
+            sb.Append("this ");
+        }
+
         ParameterInfo[] parameters = methodInfo.GetParameters();
         foreach(ParameterInfo parameterInfo in parameters)
         {
@@ -142,7 +147,7 @@ public class TreeViewProcessor
 
         foreach (MethodInfo methodInfo in typeInfo.ExtensionMethods)
         {
-            curr.Items.Add(ProcessMethodInfo(methodInfo));
+            curr.Items.Add(ProcessMethodInfo(methodInfo, true));
         }
 
         return curr;
