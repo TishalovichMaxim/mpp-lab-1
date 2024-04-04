@@ -67,14 +67,6 @@ public class TreeViewProcessor
             accessLevel = "private";
         }
 
-        string? abstractModifier = methodInfo.IsAbstract ? "abstract" : null;
-
-        string? sealedModifier = methodInfo.IsFinal ? "sealed" : null;
-
-        string? staticModifier = methodInfo.IsStatic ? "static" : null;
-
-        string? virtualModifier = methodInfo.IsVirtual ? "virtual" : null;
-
         string returnValueTypeName = methodInfo.ReturnType.Name;
 
         StringBuilder sb = new StringBuilder();
@@ -82,28 +74,24 @@ public class TreeViewProcessor
         sb.Append(accessLevel);
         sb.Append(" ");
 
-        if (staticModifier != null)
+        if (methodInfo.IsStatic)
         {
-            sb.Append(staticModifier);
-            sb.Append(" ");
+            sb.Append("static ");
         }
 
-        if (virtualModifier != null)
+        if (methodInfo.IsVirtual)
         {
-            sb.Append(virtualModifier);
-            sb.Append(" ");
+            sb.Append("virtual ");
         }
 
-        if (abstractModifier != null)
+        if (methodInfo.IsAbstract)
         {
-            sb.Append(abstractModifier);
-            sb.Append(" ");
+            sb.Append("abstract ");
         }
 
-        if (sealedModifier != null)
+        if (methodInfo.IsFinal)
         {
-            sb.Append(sealedModifier);
-            sb.Append(" ");
+            sb.Append("sealed ");
         }
 
         sb.Append(returnValueTypeName);
