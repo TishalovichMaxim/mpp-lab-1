@@ -13,18 +13,5 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         DataContext = assemblyViewerViewModel;
-        //assemblyViewerViewModel.PropertyChanged += OnPropertyChanged;
     }
-
-    //private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    //{
-    //    treeView.Items.Clear();
-
-    //    List<TreeViewItem> items = treeViewProcessor.Process(assemblyViewerViewModel.AssemblyData);
-
-    //    foreach (TreeViewItem item in items)
-    //    {
-    //        treeView.Items.Add(item);
-    //    }
-    //}
 }

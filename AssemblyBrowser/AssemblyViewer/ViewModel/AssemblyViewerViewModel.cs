@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 using System.Windows.Controls;
 using System.Windows.Input;
 using AssemblyScannerLib;
@@ -13,13 +8,52 @@ namespace AssemblyViewer.ViewModel;
 
 public class AssemblyViewerViewModel : INotifyPropertyChanged
 {
-    public string? AssemblyFileName = null;
+    private readonly TreeViewProcessor _treeViewProcessor = new();
+
+    private readonly AssemblyScanner _assemblyScanner = new();
+
+    private string _assemblyFileName;
+
+    public string? AssemblyFileName
+    {
+        get
+        {
+            return _assemblyFileName;
+        }
+        set
+        {
+            if (value == null)
+            {
+                return;
+            }
+
+            _assemblyFileName = value;
+
+            Dictionary<string, NamespaceInfo> _assemblyData
+                = _assemblyScanner.Scan(_assemblyFileName);
+
+            TreeViewItems = _treeViewProcessor.Process(_assemblyData);
+        }
+    }
 
     public ICommand ChooseAssemblyCommand { get; }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
+    public List<TreeViewItem> _treeViewItems = new();
 
-    private readonly AssemblyScanner assemblyScanner = new AssemblyScanner();
+    public List<TreeViewItem> TreeViewItems
+    {
+        get
+        {
+            return _treeViewItems;
+        }
+        set
+        {
+            _treeViewItems = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("TreeViewItems"));
+        }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public Dictionary<string, NamespaceInfo> AssemblyData = new();
 
@@ -27,13 +61,5 @@ public class AssemblyViewerViewModel : INotifyPropertyChanged
     {
         ChooseAssemblyCommand = new ChooseAssemblyCommand(this);
     }
-
-    public void LoadAssemblyData(string assemblyPath)
-    {
-        AssemblyData = assemblyScanner.Scan(assemblyPath);
-        if (PropertyChanged != null)
-        {
-            PropertyChanged.Invoke(this, new PropertyChangedEventArgs("AssemblyData"));
-        }
-    }
 }
+

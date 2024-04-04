@@ -9,14 +9,14 @@
     <Grid>
         <TreeView 
             Name="treeView"
-            Background="Aqua" Margin="0,0,0,59"
+            Background="AntiqueWhite" Margin="0,0,0,59"
+            ItemsSource="{Binding TreeViewItems}"
             />
-
 
         <Button
             Name="btnChooseAssembly"
             Content="Choose assembly"
-            Background="Green" Margin="336,380,336,0"
+            Background="BlueViolet" Margin="334,380,334,5"
             Command="{Binding ChooseAssemblyCommand}"
             />
     </Grid>
