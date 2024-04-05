@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel;
+using System.IO;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using AssemblyScannerLib;
@@ -29,8 +31,23 @@ public class AssemblyViewerViewModel : INotifyPropertyChanged
 
             _assemblyFileName = value;
 
-            Dictionary<string, NamespaceInfo> _assemblyData
-                = _assemblyScanner.Scan(_assemblyFileName);
+            Dictionary<string, NamespaceInfo> _assemblyData;
+
+            try
+            {
+                _assemblyData = _assemblyScanner.Scan(_assemblyFileName);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(
+                    "Chosen file isn't an assembly file...",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                    );
+
+                return;
+            }
 
             TreeViewItems = _treeViewProcessor.Process(_assemblyData);
         }
