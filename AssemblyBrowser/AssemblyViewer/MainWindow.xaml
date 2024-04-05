@@ -5,19 +5,33 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AssemblyViewer"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="MainWindow"
+        Height="450"
+        Width="800"
+        ResizeMode="NoResize"
+        >
+    <Grid RenderTransformOrigin="0.501,0.59" Height="450" VerticalAlignment="Top">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="350"/>
+            <RowDefinition Height="75"/>
+        </Grid.RowDefinitions>
+
         <TreeView 
             Name="treeView"
-            Background="AntiqueWhite" Margin="0,0,0,59"
+            Background="AntiqueWhite"
             ItemsSource="{Binding TreeViewItems}"
+            Grid.Row="0"
+            FontSize="16"
             />
 
         <Button
             Name="btnChooseAssembly"
             Content="Choose assembly"
-            Background="BlueViolet" Margin="334,380,334,5"
+            Background="BlueViolet"
             Command="{Binding ChooseAssemblyCommand}"
+            Grid.Row="1"
+            VerticalContentAlignment="Center"
+            FontSize="18"
             />
     </Grid>
 </Window>
