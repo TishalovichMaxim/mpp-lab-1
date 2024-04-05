@@ -6,24 +6,30 @@ public class TypeInfo
 {
     public string TypeName;
 
-    public List<MethodInfo> Methods;
+    public List<MethodData> Methods;
 
-    public List<PropertyInfo> Properties;
+    public List<PropertyData> Properties;
 
-    public List<FieldInfo> Fields;
+    public List<FieldData> Fields;
 
-    public List<MethodInfo> ExtensionMethods;
+    public List<MethodData> ExtensionMethods;
 
     public TypeInfo(Type t)
     {
         TypeName = t.Name;
 
-        Methods = t.GetNotExtensionMethods();
+        Methods = t.GetNotExtensionMethods()
+            .Select(methodInfo => new MethodData(methodInfo))
+            .ToList();
 
-        Properties = t.GetProperties().ToList();
+        Properties = t.GetProperties()
+            .Select(propertyInfo => new PropertyData(propertyInfo))
+            .ToList();
 
-        Fields = t.GetFields().ToList();
+        Fields = t.GetFields()
+            .Select(fieldInfo => new FieldData(fieldInfo))
+            .ToList();
 
-        ExtensionMethods = new List<MethodInfo>();
+        ExtensionMethods = new List<MethodData>();
     }
 }

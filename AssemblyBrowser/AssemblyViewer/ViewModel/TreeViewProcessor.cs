@@ -8,88 +8,73 @@ namespace AssemblyViewer.ViewModel;
 
 public class TreeViewProcessor
 {
-    private TreeViewItem ProcessFieldInfo(FieldInfo fieldInfo)
+    private static readonly Dictionary<MethodAttributes, string> _accessModifiers = new()
+    {
+        { MethodAttributes.Public, "public" },
+        { MethodAttributes.FamORAssem, "protected internal" },
+        { MethodAttributes.Assembly, "internal" },
+        { MethodAttributes.Family, "protected" },
+        { MethodAttributes.FamANDAssem, "protected private" },
+        { MethodAttributes.Private, "private" }
+    };
+
+    private TreeViewItem ProcessFieldData(FieldData fieldData)
     {
         TreeViewItem res = new TreeViewItem();
 
-        string name = fieldInfo.Name;
+        string name = fieldData.Name;
 
-        string type = fieldInfo.FieldType.Name;
+        string type = fieldData.Type.Name;
 
         res.Header = $"field: {type} {name}";
 
         return res;
     }
 
-    private TreeViewItem ProcessPropertyInfo(PropertyInfo propertyInfo)
+    private TreeViewItem ProcessPropertyData(PropertyData propertyData)
     {
         TreeViewItem res = new TreeViewItem();
 
-        string name = propertyInfo.Name;
+        string name = propertyData.Name;
 
-        string type = propertyInfo.PropertyType.Name;
+        string type = propertyData.Type.Name;
 
         res.Header = $"property: {type} {name}";
 
         return res;
     }
 
-    private TreeViewItem ProcessMethodInfo(MethodInfo methodInfo, bool isExtension = false)
+    private TreeViewItem ProcessMethodData(MethodData methodData, bool isExtension = false)
     {
         TreeViewItem res = new TreeViewItem();
 
-        string name = methodInfo.Name;
+        string name = methodData.Name;
 
-        string accessLevel = "";
+        string accessModifier = _accessModifiers[methodData.AccessModifier];
 
-        if (methodInfo.IsPublic)
-        {
-            accessLevel = "public";
-        }
-        else if (methodInfo.IsFamilyOrAssembly)
-        {
-            accessLevel = "protected internal";
-        } 
-        else if (methodInfo.IsAssembly)
-        {
-            accessLevel = "internal";
-        } 
-        else if (methodInfo.IsFamily)
-        {
-            accessLevel = "protected";
-        }
-        else if (methodInfo.IsFamilyAndAssembly)
-        {
-            accessLevel = "protected private";
-        }
-        else if (methodInfo.IsPrivate)
-        {
-            accessLevel = "private";
-        }
-
-        string returnValueTypeName = methodInfo.ReturnType.Name;
+        string returnValueTypeName = methodData.ReturnType.Name;
 
         StringBuilder sb = new StringBuilder();
 
-        sb.Append(accessLevel);
+        sb.Append(accessModifier);
         sb.Append(" ");
 
-        if (methodInfo.IsStatic)
+        if (methodData.IsStatic)
         {
             sb.Append("static ");
         }
 
-        if (methodInfo.IsVirtual)
+        if (methodData.IsVirtual)
         {
             sb.Append("virtual ");
         }
 
-        if (methodInfo.IsAbstract)
+        if (methodData.IsAbstract)
         {
             sb.Append("abstract ");
         }
 
-        if (methodInfo.IsFinal)
+        if (methodData.IsSealed)
         {
             sb.Append("sealed ");
         }
@@ -105,14 +90,13 @@ public class TreeViewProcessor
             sb.Append("this ");
         }
 
-        ParameterInfo[] parameters = methodInfo.GetParameters();
-        foreach(ParameterInfo parameterInfo in parameters)
+        foreach(Type paramType in methodData.Params)
         {
-            sb.Append(parameterInfo.ParameterType.Name);
+            sb.Append(paramType.Name);
             sb.Append(", ");
         }
 
-        if (parameters.Length != 0)
+        if (methodData.Params.Count != 0)
         {
             sb.Remove(sb.Length - 2, 2);
         }
@@ -130,24 +114,24 @@ public class TreeViewProcessor
 
         curr.Header = typeInfo.TypeName;
 
-        foreach (FieldInfo fieldInfo in typeInfo.Fields)
+        foreach (FieldData fieldData in typeInfo.Fields)
         {
-            curr.Items.Add(ProcessFieldInfo(fieldInfo));
+            curr.Items.Add(ProcessFieldData(fieldData));
         }
 
-        foreach (PropertyInfo propertyInfo in typeInfo.Properties)
+        foreach (PropertyData propertyData in typeInfo.Properties)
         {
-            curr.Items.Add(ProcessPropertyInfo(propertyInfo));
+            curr.Items.Add(ProcessPropertyData(propertyData));
         }
 
-        foreach (MethodInfo methodInfo in typeInfo.Methods)
+        foreach (MethodData methodData in typeInfo.Methods)
         {
-            curr.Items.Add(ProcessMethodInfo(methodInfo));
+            curr.Items.Add(ProcessMethodData(methodData));
         }
 
-        foreach (MethodInfo methodInfo in typeInfo.ExtensionMethods)
+        foreach (MethodData methodData in typeInfo.ExtensionMethods)
         {
-            curr.Items.Add(ProcessMethodInfo(methodInfo, true));
+            curr.Items.Add(ProcessMethodData(methodData, true));
         }
 
         return curr;

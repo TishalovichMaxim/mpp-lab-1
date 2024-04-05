@@ -70,7 +70,7 @@ public class AssemblyScanner
         }
 
         TypeInfo extendedClassTypeInfo = currNamespaceInfo.Types[parts.Last()];
-        extendedClassTypeInfo.ExtensionMethods.Add(methodInfo);
+        extendedClassTypeInfo.ExtensionMethods.Add(new MethodData(methodInfo));
     }
 
     private void SetExtenstionMethods(NamespaceInfo root)
