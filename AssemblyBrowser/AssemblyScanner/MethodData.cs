@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+using System.Security.AccessControl;
 
 namespace AssemblyScannerLib;
 
@@ -60,5 +62,46 @@ public struct MethodData
         {
             AccessModifier = MethodAttributes.Private;
         }
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj == null || obj.GetType() != GetType()) {
+            return false;
+        }
+
+        MethodData md = (MethodData)obj;
+        return Name.Equals(md.Name)
+            && ReturnType.Equals(md.ReturnType)
+            && Params.SequenceEqual(md.Params)
+            && IsStatic == md.IsStatic
+            && IsAbstract == md.IsAbstract
+            && IsSealed == md.IsSealed
+            && IsVirtual == md.IsVirtual
+            && AccessModifier.Equals(md.AccessModifier);
+    }
+
+    public override int GetHashCode()
+    {
+        int hash = 13;
+
+        unchecked
+        {
+            hash = 7 * hash + Name.GetHashCode();
+            hash = 7 * hash + ReturnType.GetHashCode();
+
+            foreach (Type paramType in Params)
+            {
+                hash = unchecked((7 * hash) + paramType.GetHashCode());
+            }
+
+            hash = 7 * hash + IsStatic.GetHashCode();
+            hash = 7 * hash + IsAbstract.GetHashCode();
+            hash = 7 * hash + IsSealed.GetHashCode();
+            hash = 7 * hash + IsVirtual.GetHashCode();
+            hash = 7 * hash + AccessModifier.GetHashCode();
+        }
+
+        return hash;
     }
 }
