@@ -22,11 +22,11 @@ public class TypeInfo
             .Select(methodInfo => new MethodData(methodInfo))
             .ToList();
 
-        Properties = t.GetProperties()
+        Properties = t.GetRuntimeProperties()
             .Select(propertyInfo => new PropertyData(propertyInfo))
             .ToList();
 
-        Fields = t.GetFields()
+        Fields = t.GetRuntimeFields()
             .Select(fieldInfo => new FieldData(fieldInfo))
             .ToList();
 
