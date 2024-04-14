@@ -9,15 +9,33 @@ namespace ForTests;
 
 internal class TestAccessModifiersScanning
 {
-    private int a;
+    private int a()
+    {
+        return 0;
+    }
 
-    private protected int b;
+    private protected int b()
+    {
+        return 0;
+    }
 
-    internal int c;
+    internal int c()
+    {
+        return 0;
+    }
 
-    protected int d;
+    protected int d()
+    {
+        return 0;
+    }
 
-    protected internal int e;
+    protected internal int e()
+    {
+        return 0;
+    }
 
-    public int f;
+    public int f()
+    {
+        return 0;
+    }
 }
