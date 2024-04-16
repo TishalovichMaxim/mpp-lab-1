@@ -6,18 +6,24 @@ namespace TestsGeneratorLib;
 
 public class TestsGenerator
 {
-
     public void Generate(IList<string> files, string resDir, int maxInFiles, int maxProcFiles, int maxOutFiles)
     {
+        
     }
 
-
-    public void getClassDeclarations()
+    private IList<ClassDeclarationInfo> GetClassDeclarations(string fileContent)
     {
+        SyntaxTree tree = CSharpSyntaxTree.ParseText(fileContent);
+        CompilationUnitSyntax root = tree.GetCompilationUnitRoot(); 
 
+        ClassesCollector collector = new();
+
+        collector.Visit(root);
+
+        return collector.ClassesInfo;
     }
 
-    public void CreateTestClass(string className, List<string> methods)
+    private string CreateTestClass(string className, List<string> methods)
     {
         AttributeSyntax methodAttr = SyntaxFactory.Attribute(SyntaxFactory.IdentifierName("TestMethod"), null);
         AttributeListSyntax methodAttributeList = SyntaxFactory.AttributeList();
@@ -99,8 +105,7 @@ public class TestsGenerator
             );
 
         var code = compilationUnit.NormalizeWhitespace().ToFullString();
-
-        Console.WriteLine(code);
+        return code.ToString();
     }
 
 }
