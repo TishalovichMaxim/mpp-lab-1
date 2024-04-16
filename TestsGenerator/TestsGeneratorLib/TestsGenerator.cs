@@ -11,14 +11,19 @@ public class TestsGenerator
     {
         DataflowLinkOptions linkOptions = new() { PropagateCompletion = true };
 
+        ExecutionDataflowBlockOptions readingBlockOptions = new() { MaxDegreeOfParallelism = maxInFiles };
+        ExecutionDataflowBlockOptions processingBlockOptions = new() { MaxDegreeOfParallelism = maxProcFiles };
+        ExecutionDataflowBlockOptions outputBlockOptions = new() { MaxDegreeOfParallelism = maxOutFiles };
+
         TransformBlock<string, string> readingFilesBlock
-            = new(async path => await File.ReadAllTextAsync(path));
+            = new(async path => await File.ReadAllTextAsync(path), readingBlockOptions);
 
         TransformManyBlock<string, TestClassInfo> processingBlock
-            = new(content => ProcessFile(content));
+            = new(content => ProcessFile(content), processingBlockOptions);
 
         ActionBlock<TestClassInfo> outputBlock = new(
-            info => File.WriteAllTextAsync(Path.Combine(resDir, info.ClassName + ".cs"), info.Content)
+            info => File.WriteAllTextAsync(Path.Combine(resDir, info.ClassName + ".cs"), info.Content),
+            outputBlockOptions
             );
 
         readingFilesBlock.LinkTo(processingBlock, linkOptions);
@@ -26,7 +31,7 @@ public class TestsGenerator
 
         foreach (var file in files)
         {
-            readingFilesBlock.Post(file);           
+            readingFilesBlock.Post(file);
         }
 
         readingFilesBlock.Complete();
