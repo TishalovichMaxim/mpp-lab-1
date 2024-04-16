@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System.Threading.Tasks.Dataflow;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -6,9 +7,38 @@ namespace TestsGeneratorLib;
 
 public class TestsGenerator
 {
-    public void Generate(IList<string> files, string resDir, int maxInFiles, int maxProcFiles, int maxOutFiles)
+    public Task Generate(IList<string> files, string resDir, int maxInFiles, int maxProcFiles, int maxOutFiles)
     {
-        
+        DataflowLinkOptions linkOptions = new() { PropagateCompletion = true };
+
+        TransformBlock<string, string> readingFilesBlock
+            = new(async path => await File.ReadAllTextAsync(path));
+
+        TransformManyBlock<string, TestClassInfo> processingBlock
+            = new(content => ProcessFile(content));
+
+        ActionBlock<TestClassInfo> outputBlock = new(
+            info => File.WriteAllTextAsync(Path.Combine(resDir, info.ClassName + ".cs"), info.Content)
+            );
+
+        readingFilesBlock.LinkTo(processingBlock, linkOptions);
+        processingBlock.LinkTo(outputBlock, linkOptions);
+
+        foreach (var file in files)
+        {
+            readingFilesBlock.Post(file);           
+        }
+
+        return outputBlock.Completion;
+    }
+
+    private IList<TestClassInfo> ProcessFile(string content)
+    {
+        IList<ClassDeclarationInfo> infos = GetClassDeclarations(content);
+
+        return infos.Select(i =>
+        new TestClassInfo(i.ClassName, CreateTestClass(i.ClassName, i.MethodsNames)))
+            .ToList();
     }
 
     private IList<ClassDeclarationInfo> GetClassDeclarations(string fileContent)
@@ -23,7 +53,7 @@ public class TestsGenerator
         return collector.ClassesInfo;
     }
 
-    private string CreateTestClass(string className, List<string> methods)
+    private string CreateTestClass(string className, IList<string> methods)
     {
         AttributeSyntax methodAttr = SyntaxFactory.Attribute(SyntaxFactory.IdentifierName("TestMethod"), null);
         AttributeListSyntax methodAttributeList = SyntaxFactory.AttributeList();

@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace TestsGeneratorLib;
 
-public struct ClassDeclarationInfo
+internal class TestClassInfo
 {
     public string ClassName;
 
-    public IList<string> MethodsNames;
+    public string Content;
 
-    public ClassDeclarationInfo(string className, IList<string> methodsNames)
+    public TestClassInfo(string className, string content)
     {
         ClassName = className;
-        MethodsNames = methodsNames;
+        Content = content;
     }
 }
