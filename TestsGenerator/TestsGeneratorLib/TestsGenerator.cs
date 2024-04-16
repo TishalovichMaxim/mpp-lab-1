@@ -29,6 +29,8 @@ public class TestsGenerator
             readingFilesBlock.Post(file);           
         }
 
+        readingFilesBlock.Complete();
+
         return outputBlock.Completion;
     }
 
