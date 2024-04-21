@@ -13,6 +13,53 @@ public class ClassesCollector : CSharpSyntaxWalker {
     public IList<ClassDeclarationInfo> ClassesInfo
     { get; } = new List<ClassDeclarationInfo>();
 
+    private bool IsInterfaceIdentifier(string identifier)
+    {
+        return identifier.StartsWith('I')
+            && identifier.Length > 1
+            && Char.IsUpper(identifier[1]);
+    }
+
+    private ConstructorInfo? CheckConstructor(ConstructorDeclarationSyntax constructor)
+    {
+        String constructorName = constructor
+            .ChildTokens()
+            .Where(t => t.IsKind(SyntaxKind.IdentifierToken))
+            .First()
+            .ToString();
+
+        List<ParameterInfo> parameters;
+        try
+        {
+            parameters = constructor.ChildNodes()
+                .OfType<ParameterSyntax>()
+                .Select(n => 
+                    new ParameterInfo(
+                        n.ChildNodes()
+                            .OfType<IdentifierNameSyntax>()
+                            .Where(n => IsInterfaceIdentifier(n.ToString()))
+                            .First()
+                            .ToString(),
+                        n.ChildTokens()
+                            .First()
+                            .ToString()
+                    )
+                )
+                .ToList();
+        }
+        catch (InvalidOperationException e)
+        {
+            return null;
+        }
+
+        if (parameters.Count == 0)
+        {
+            return null;
+        }
+
+        return new ConstructorInfo(parameters);
+    }        
+
     public override void VisitClassDeclaration(ClassDeclarationSyntax node)
     {
         SyntaxToken className = node
@@ -20,16 +67,51 @@ public class ClassesCollector : CSharpSyntaxWalker {
             .Where(token => token.IsKind(SyntaxKind.IdentifierToken))
             .First();
 
-        var methods = node
+        var constructors = node
+            .ChildNodes()
+            .OfType<ConstructorDeclarationSyntax>();
+
+        ConstructorInfo? constructorInfo = null;
+
+        foreach ( var constructor in constructors )
+        {
+            constructorInfo = CheckConstructor(constructor);
+            if ( constructorInfo != null )
+            {
+                break;
+            }
+        }
+
+        List<MethodDeclarationInfo> methods = node
             .ChildNodes()
             .Where(n => n.IsKind(SyntaxKind.MethodDeclaration)
                 && n.DescendantTokens().Any(n => n.IsKind(SyntaxKind.PublicKeyword)))
-            .Select(n=> n.ChildTokens()
-                .Where(t => t.IsKind(SyntaxKind.IdentifierToken)).First());
+            .Select(n => 
+                new MethodDeclarationInfo( 
+                    n.ChildTokens()
+                        .Where(t => 
+                            t.IsKind(SyntaxKind.IdentifierToken))
+                        .First()
+                        .ToString(),
+                    n.DescendantNodes()
+                        .Where(n =>
+                            n.IsKind(SyntaxKind.Parameter))
+                        .Select(n =>
+                            new ParameterInfo(
+                                n.ChildNodes().First().ChildTokens().First().ToString(),
+                                n.ChildTokens().First().ToString()
+                            )
+                        )
+                        .ToList()
+                )
+            ).ToList();
 
         ClassesInfo.Add(
-            new ClassDeclarationInfo(className.ToString(),
-            methods.Select(m => m.ToString()).ToList())
+            new ClassDeclarationInfo(
+                className.ToString(),
+                methods,
+                constructorInfo
+                )
             );
     }
 }

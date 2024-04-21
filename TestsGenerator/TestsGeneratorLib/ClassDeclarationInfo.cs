@@ -10,11 +10,14 @@ public struct ClassDeclarationInfo
 {
     public string ClassName;
 
-    public IList<string> MethodsNames;
+    public IList<MethodDeclarationInfo> Methods;
 
-    public ClassDeclarationInfo(string className, IList<string> methodsNames)
+    public ConstructorInfo? ConstructorInfo;
+
+    public ClassDeclarationInfo(string className, IList<MethodDeclarationInfo> methods, ConstructorInfo? constructorInfo)
     {
         ClassName = className;
-        MethodsNames = methodsNames;
+        Methods = methods;
+        ConstructorInfo = constructorInfo;
     }
 }
