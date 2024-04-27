@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -24,8 +19,7 @@ public class ClassesCollector : CSharpSyntaxWalker {
     {
         String constructorName = constructor
             .ChildTokens()
-            .Where(t => t.IsKind(SyntaxKind.IdentifierToken))
-            .First()
+            .First(t => t.IsKind(SyntaxKind.IdentifierToken))
             .ToString();
 
         List<ParameterInfo> parameters;
@@ -35,10 +29,10 @@ public class ClassesCollector : CSharpSyntaxWalker {
                 .OfType<ParameterSyntax>()
                 .Select(n => 
                     new ParameterInfo(
-                        n.ChildNodes()
+                        n
+                            .ChildNodes()
                             .OfType<IdentifierNameSyntax>()
-                            .Where(n => IsInterfaceIdentifier(n.ToString()))
-                            .First()
+                            .First(n => IsInterfaceIdentifier(n.ToString()))
                             .ToString(),
                         n.ChildTokens()
                             .First()
@@ -64,8 +58,7 @@ public class ClassesCollector : CSharpSyntaxWalker {
     {
         SyntaxToken className = node
             .ChildTokens()
-            .Where(token => token.IsKind(SyntaxKind.IdentifierToken))
-            .First();
+            .First(token => token.IsKind(SyntaxKind.IdentifierToken));
 
         var constructors = node
             .ChildNodes()
@@ -88,10 +81,9 @@ public class ClassesCollector : CSharpSyntaxWalker {
                 && n.DescendantTokens().Any(n => n.IsKind(SyntaxKind.PublicKeyword)))
             .Select(n => 
                 new MethodDeclarationInfo( 
-                    n.ChildTokens()
-                        .Where(t => 
-                            t.IsKind(SyntaxKind.IdentifierToken))
-                        .First()
+                    n
+                        .ChildTokens()
+                        .First(t => t.IsKind(SyntaxKind.IdentifierToken))
                         .ToString(),
                     n.DescendantNodes()
                         .Where(n =>
@@ -102,7 +94,8 @@ public class ClassesCollector : CSharpSyntaxWalker {
                                 n.ChildTokens().First().ToString()
                             )
                         )
-                        .ToList()
+                        .ToList(),
+                    n.DescendantNodes().First().ToString()
                 )
             ).ToList();
 
@@ -111,8 +104,8 @@ public class ClassesCollector : CSharpSyntaxWalker {
                 className.ToString(),
                 methods,
                 constructorInfo
-                )
-            );
+            )
+        );
     }
 }
 
