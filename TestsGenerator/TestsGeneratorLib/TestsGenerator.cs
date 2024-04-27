@@ -585,8 +585,7 @@ public class TestsGenerator
                         TriviaList(
                             Whitespace("        ")),
                         SyntaxKind.CloseBraceToken,
-                        TriviaList(
-                            LineFeed))));
+                        TriviaList())));
     }
 
     public MethodDeclarationSyntax CreateTestMethod(MethodDeclarationInfo methodInfo, FieldInfo classField)
