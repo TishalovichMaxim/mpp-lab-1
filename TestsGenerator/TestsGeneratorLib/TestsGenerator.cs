@@ -667,10 +667,10 @@ public class TestsGenerator
         
         return 
                 MethodDeclaration(
-                    IdentifierName(
-                        Identifier(
+                    PredefinedType(
+                        Token(
                             TriviaList(),
-                            methodInfo.ReturnType,
+                            SyntaxKind.VoidKeyword,
                             TriviaList(
                                 Space))),
                     Identifier(methodInfo.Name))
@@ -683,7 +683,12 @@ public class TestsGenerator
                         .WithOpenBracketToken(
                             Token(
                                 TriviaList(
-                                    Whitespace("    ")),
+                                    new []{
+                                        Whitespace("    \t"),
+                                        LineFeed,
+                                        Whitespace("    \t"),
+                                        LineFeed,
+                                        Whitespace("        ")}),
                                 SyntaxKind.OpenBracketToken,
                                 TriviaList()))
                         .WithCloseBracketToken(
@@ -696,10 +701,18 @@ public class TestsGenerator
                     TokenList(
                         Token(
                             TriviaList(
-                                Whitespace("    ")),
+                                Whitespace("        ")),
                             SyntaxKind.PublicKeyword,
                             TriviaList(
                                 Space))))
+                .WithParameterList(
+                    ParameterList()
+                    .WithCloseParenToken(
+                        Token(
+                            TriviaList(),
+                            SyntaxKind.CloseParenToken,
+                            TriviaList(
+                                LineFeed))))
                 .WithBody(
                     Block(
                         methodBody
@@ -707,8 +720,15 @@ public class TestsGenerator
                     .WithOpenBraceToken(
                         Token(
                             TriviaList(
-                                Whitespace("    ")),
+                                Whitespace("        ")),
                             SyntaxKind.OpenBraceToken,
+                            TriviaList(
+                                LineFeed)))
+                    .WithCloseBraceToken(
+                        Token(
+                            TriviaList(
+                                Whitespace("        ")),
+                            SyntaxKind.CloseBraceToken,
                             TriviaList(
                                 LineFeed))));
     }
