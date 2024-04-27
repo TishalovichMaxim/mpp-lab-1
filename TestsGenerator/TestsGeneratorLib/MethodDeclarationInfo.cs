@@ -8,13 +8,16 @@ namespace TestsGeneratorLib;
 
 public struct MethodDeclarationInfo
 {
+    public string ReturnType;
+    
     public string Name;
 
     public IList<ParameterInfo> Parameters;
 
-    public MethodDeclarationInfo(string name, IList<ParameterInfo> parameters)
+    public MethodDeclarationInfo(string name, IList<ParameterInfo> parameters, string returnType)
     {
         Name = name;
         Parameters = parameters;
+        ReturnType = returnType;
     }
 }

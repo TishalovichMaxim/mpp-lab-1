@@ -8,9 +8,9 @@ namespace TestsGeneratorLib;
 
 public struct ParameterInfo
 {
-    string Type;
+    public string Type;
     
-    string Name;
+    public string Name;
 
     public ParameterInfo(string type, string name)
     {
