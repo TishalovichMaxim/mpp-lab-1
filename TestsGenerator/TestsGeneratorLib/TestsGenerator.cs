@@ -442,7 +442,8 @@ public class TestsGenerator
             .WithModifiers(
                 TokenList(
                     Token(
-                        TriviaList(),
+                        TriviaList(
+                            Whitespace("\t\t")),
                         SyntaxKind.PrivateKeyword,
                         TriviaList(
                             Space))))
@@ -451,35 +452,36 @@ public class TestsGenerator
                     TriviaList(),
                     SyntaxKind.SemicolonToken,
                     TriviaList(
-                        LineFeed)))
+                        LineFeed)))        
         ).ToList();
 
         res.Add(
             FieldDeclaration(
-                VariableDeclaration(
-                    IdentifierName(
-                        Identifier(
-                            TriviaList(),
-                            classFieldInfo.Type,
+                    VariableDeclaration(
+                            IdentifierName(
+                                Identifier(
+                                    TriviaList(),
+                                    classFieldInfo.Type,
+                                    TriviaList(
+                                        Space))))
+                        .WithVariables(
+                            SingletonSeparatedList<VariableDeclaratorSyntax>(
+                                VariableDeclarator(
+                                    Identifier(classFieldInfo.Name)))))
+                .WithModifiers(
+                    TokenList(
+                        Token(
+                            TriviaList(
+                                Whitespace("        ")),
+                            SyntaxKind.PrivateKeyword,
                             TriviaList(
                                 Space))))
-                .WithVariables(
-                    SingletonSeparatedList<VariableDeclaratorSyntax>(
-                        VariableDeclarator(
-                            Identifier(classFieldInfo.Name)))))
-            .WithModifiers(
-                TokenList(
+                .WithSemicolonToken(
                     Token(
                         TriviaList(),
-                        SyntaxKind.PrivateKeyword,
+                        SyntaxKind.SemicolonToken,
                         TriviaList(
-                            Space))))
-            .WithSemicolonToken(
-                Token(
-                    TriviaList(),
-                    SyntaxKind.SemicolonToken,
-                    TriviaList(
-                        LineFeed)))
+                            LineFeed)))
         );
 
         return res;
@@ -497,7 +499,7 @@ public class TestsGenerator
                                     Identifier(
                                         TriviaList(
                                             Whitespace("    \t\t")),
-                                        "_dependency",
+                                        field.Name,
                                         TriviaList(
                                             Space))),
                                 ObjectCreationExpression(
@@ -506,7 +508,7 @@ public class TestsGenerator
                                     .WithTypeArgumentList(
                                         TypeArgumentList(
                                             SingletonSeparatedList<TypeSyntax>(
-                                                IdentifierName("IDependency")))))
+                                                IdentifierName(field.Type)))))
                                 .WithNewKeyword(
                                     Token(
                                         TriviaList(),
@@ -580,13 +582,13 @@ public class TestsGenerator
                         SyntaxKind.VoidKeyword,
                         TriviaList(
                             Space))),
-                Identifier("SetUp"))
+                Identifier("TestInitialize"))
             .WithAttributeLists(
                 SingletonList<AttributeListSyntax>(
                     AttributeList(
                         SingletonSeparatedList<AttributeSyntax>(
                             Attribute(
-                                IdentifierName("SetUp"))))
+                                IdentifierName("Initialize"))))
                     .WithOpenBracketToken(
                         Token(
                             TriviaList(
