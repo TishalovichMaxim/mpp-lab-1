@@ -67,32 +67,33 @@ public class TestsGenerator
     public StatementSyntax CreateLocalVariable(ParameterInfo parameterInfo)
     {
         return 
-            LocalDeclarationStatement(
+                LocalDeclarationStatement(
                     VariableDeclaration(
-                            IdentifierName(
+                        IdentifierName(
+                            Identifier(
+                                TriviaList(
+                                    Whitespace("            ")),
+                                parameterInfo.Type,
+                                TriviaList(
+                                    Space))))
+                    .WithVariables(
+                        SingletonSeparatedList<VariableDeclaratorSyntax>(
+                            VariableDeclarator(
                                 Identifier(
                                     TriviaList(),
-                                    parameterInfo.Type,
+                                    parameterInfo.Name,
                                     TriviaList(
-                                        Space))))
-                        .WithVariables(
-                            SingletonSeparatedList<VariableDeclaratorSyntax>(
-                                VariableDeclarator(
-                                        Identifier(
-                                            TriviaList(),
-                                            parameterInfo.Name,
-                                            TriviaList(
-                                                Space)))
-                                    .WithInitializer(
-                                        EqualsValueClause(
-                                                DefaultExpression(
-                                                    IdentifierName(parameterInfo.Type)))
-                                            .WithEqualsToken(
-                                                Token(
-                                                    TriviaList(),
-                                                    SyntaxKind.EqualsToken,
-                                                    TriviaList(
-                                                        Space)))))))
+                                        Space)))
+                            .WithInitializer(
+                                EqualsValueClause(
+                                    DefaultExpression(
+                                        IdentifierName(parameterInfo.Type)))
+                                .WithEqualsToken(
+                                    Token(
+                                        TriviaList(),
+                                        SyntaxKind.EqualsToken,
+                                        TriviaList(
+                                            Space)))))))
                 .WithSemicolonToken(
                     Token(
                         TriviaList(),
@@ -145,7 +146,16 @@ public class TestsGenerator
                 InvocationExpression(
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName(classFieldName),
+                            IdentifierName(
+                                Identifier(
+                                        TriviaList(
+                                            LineFeed,
+                                            Whitespace("            ")
+                                        ),
+                                        classFieldName,
+                                        TriviaList()
+                                )
+                            ),
                             IdentifierName(methodInfo.Name)))
                     .WithArgumentList(
                         methodArgs
@@ -171,7 +181,10 @@ public class TestsGenerator
                     VariableDeclaration(
                             IdentifierName(
                                 Identifier(
-                                    TriviaList(),
+                                    TriviaList(
+                                        LineFeed,
+                                        Whitespace("            ")
+                                    ),
                                     methodInfo.ReturnType,
                                     TriviaList(
                                         Space))))
@@ -204,6 +217,7 @@ public class TestsGenerator
                         TriviaList(),
                         SyntaxKind.SemicolonToken,
                         TriviaList(
+                            LineFeed,
                             LineFeed)))
         ];
     }
@@ -216,7 +230,9 @@ public class TestsGenerator
                     VariableDeclaration(
                             IdentifierName(
                                 Identifier(
-                                    TriviaList(),
+                                    TriviaList(
+                                            Whitespace("            ")
+                                        ),
                                     methodInfo.ReturnType,
                                     TriviaList(
                                         Space))))
@@ -249,7 +265,13 @@ public class TestsGenerator
                     InvocationExpression(
                             MemberAccessExpression(
                                 SyntaxKind.SimpleMemberAccessExpression,
-                                IdentifierName("Assert"),
+                                IdentifierName(
+                                    Identifier(
+                                        TriviaList(Whitespace("            ")),
+                                        "Assert",
+                                        TriviaList()
+                                    )
+                                ),
                                 IdentifierName("That")))
                         .WithArgumentList(
                             ArgumentList(
@@ -286,7 +308,13 @@ public class TestsGenerator
                     InvocationExpression(
                             MemberAccessExpression(
                                 SyntaxKind.SimpleMemberAccessExpression,
-                                IdentifierName("Assert"),
+                                IdentifierName(
+                                    Identifier(
+                                        TriviaList(Whitespace("            ")),
+                                        "Assert",
+                                        TriviaList()
+                                    )
+                                ),
                                 IdentifierName("Fail")))
                         .WithArgumentList(
                             ArgumentList(
@@ -313,7 +341,16 @@ public class TestsGenerator
                 InvocationExpression(
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("Assert"),
+                            IdentifierName(
+                                Identifier(
+                                    TriviaList(
+                                        LineFeed,
+                                        Whitespace("            ")
+                                    ),
+                                    "Assert",
+                                    TriviaList()
+                                )
+                            ),
                             IdentifierName("Fail")))
                     .WithArgumentList(
                         ArgumentList(
@@ -329,93 +366,6 @@ public class TestsGenerator
                     TriviaList(
                         LineFeed)))
         ];
-    }
-    
-    private SyntaxNode CreateActSection(MethodDeclarationInfo methodInfo, string classFieldName)
-    {
-        List<SyntaxNodeOrToken> methodArgs = new();
-        for (int i = 0; i < methodInfo.Parameters.Count - 1; i++)
-        {
-            methodArgs.Add(
-                Argument(
-                    IdentifierName(methodInfo.Parameters[i].Name))
-            );
-            
-            methodArgs.Add(
-                Token(
-                    TriviaList(),
-                    SyntaxKind.CommaToken,
-                    TriviaList(
-                        Space))
-            );
-        }
-        
-        methodArgs.Add(
-            Argument(IdentifierName(methodInfo.Parameters[^1].Name))
-        );
-        
-        if (methodInfo.ReturnType.Equals(VoidTypeName))
-        {
-            return ExpressionStatement(
-                    InvocationExpression(
-                            MemberAccessExpression(
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                IdentifierName(classFieldName),
-                                IdentifierName(methodInfo.Name)))
-                        .WithArgumentList(
-                            ArgumentList(
-                                SeparatedList<ArgumentSyntax>(
-                                    methodArgs
-                                ))))
-                .WithSemicolonToken(
-                    Token(
-                        TriviaList(),
-                        SyntaxKind.SemicolonToken,
-                        TriviaList(
-                            LineFeed)));
-        }
-
-        return 
-            LocalDeclarationStatement(
-                    VariableDeclaration(
-                            IdentifierName(
-                                Identifier(
-                                    TriviaList(),
-                                    methodInfo.ReturnType,
-                                    TriviaList(
-                                        Space))))
-                        .WithVariables(
-                            SingletonSeparatedList<VariableDeclaratorSyntax>(
-                                VariableDeclarator(
-                                        Identifier(
-                                            TriviaList(),
-                                            "actual",
-                                            TriviaList(
-                                                Space)))
-                                    .WithInitializer(
-                                        EqualsValueClause(
-                                                InvocationExpression(
-                                                        MemberAccessExpression(
-                                                            SyntaxKind.SimpleMemberAccessExpression,
-                                                            IdentifierName(classFieldName),
-                                                            IdentifierName(methodInfo.Name)))
-                                                    .WithArgumentList(
-                                                        ArgumentList(
-                                                            SeparatedList<ArgumentSyntax>(
-                                                                    methodArgs
-                                                                ))))
-                                            .WithEqualsToken(
-                                                Token(
-                                                    TriviaList(),
-                                                    SyntaxKind.EqualsToken,
-                                                    TriviaList(
-                                                        Space)))))))
-                .WithSemicolonToken(
-                    Token(
-                        TriviaList(),
-                        SyntaxKind.SemicolonToken,
-                        TriviaList(
-                            LineFeed)));
     }
     
     public IEnumerable<FieldDeclarationSyntax> CreateFieldDeclarations(List<ParameterInfo> parameters, FieldInfo classFieldInfo)
@@ -443,7 +393,7 @@ public class TestsGenerator
                 TokenList(
                     Token(
                         TriviaList(
-                            Whitespace("\t\t")),
+                            Whitespace("        ")),
                         SyntaxKind.PrivateKeyword,
                         TriviaList(
                             Space))))
@@ -498,7 +448,7 @@ public class TestsGenerator
                                 IdentifierName(
                                     Identifier(
                                         TriviaList(
-                                            Whitespace("    \t\t")),
+                                            Whitespace("            ")),
                                         field.Name,
                                         TriviaList(
                                             Space))),
@@ -539,7 +489,7 @@ public class TestsGenerator
                     IdentifierName(
                         Identifier(
                             TriviaList(
-                                Whitespace("    \t \t")),
+                                Whitespace("            ")),
                             classFieldInfo.Name,
                             TriviaList(
                                 Space))),
@@ -582,19 +532,19 @@ public class TestsGenerator
                         SyntaxKind.VoidKeyword,
                         TriviaList(
                             Space))),
-                Identifier("TestInitialize"))
+                Identifier("Initialization"))
             .WithAttributeLists(
                 SingletonList<AttributeListSyntax>(
                     AttributeList(
                         SingletonSeparatedList<AttributeSyntax>(
                             Attribute(
-                                IdentifierName("Initialize"))))
+                                IdentifierName("TestInitialization"))))
                     .WithOpenBracketToken(
                         Token(
                             TriviaList(
                                 new []{
                                     LineFeed,
-                                    Whitespace("    \t")}),
+                                    Whitespace("        ")}),
                             SyntaxKind.OpenBracketToken,
                             TriviaList()))
                     .WithCloseBracketToken(
@@ -607,7 +557,7 @@ public class TestsGenerator
                 TokenList(
                     Token(
                         TriviaList(
-                            Whitespace("    \t")),
+                            Whitespace("        ")),
                         SyntaxKind.PublicKeyword,
                         TriviaList(
                             Space))))
@@ -626,14 +576,14 @@ public class TestsGenerator
                 .WithOpenBraceToken(
                     Token(
                         TriviaList(
-                            Whitespace("    \t")),
+                            Whitespace("        ")),
                         SyntaxKind.OpenBraceToken,
                         TriviaList(
                             LineFeed)))
                 .WithCloseBraceToken(
                     Token(
                         TriviaList(
-                            Whitespace("    \t")),
+                            Whitespace("        ")),
                         SyntaxKind.CloseBraceToken,
                         TriviaList(
                             LineFeed))));
@@ -684,9 +634,9 @@ public class TestsGenerator
                             Token(
                                 TriviaList(
                                     new []{
-                                        Whitespace("    \t"),
+                                        Whitespace("        "),
                                         LineFeed,
-                                        Whitespace("    \t"),
+                                        Whitespace("        "),
                                         LineFeed,
                                         Whitespace("        ")}),
                                 SyntaxKind.OpenBracketToken,
