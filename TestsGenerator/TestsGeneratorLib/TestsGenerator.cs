@@ -264,41 +264,29 @@ public class TestsGenerator
                             LineFeed))),
 
             ExpressionStatement(
-                    InvocationExpression(
-                            MemberAccessExpression(
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                IdentifierName(
-                                    Identifier(
-                                        TriviaList(Whitespace("            ")),
-                                        "Assert",
-                                        TriviaList()
-                                    )
-                                ),
-                                IdentifierName("That")))
-                        .WithArgumentList(
-                            ArgumentList(
-                                SeparatedList<ArgumentSyntax>(
-                                    new SyntaxNodeOrToken[]
-                                    {
-                                        Argument(
-                                            IdentifierName("actual")),
-                                        Token(
-                                            TriviaList(),
-                                            SyntaxKind.CommaToken,
-                                            TriviaList(
-                                                Space)),
-                                        Argument(
-                                            InvocationExpression(
-                                                    MemberAccessExpression(
-                                                        SyntaxKind.SimpleMemberAccessExpression,
-                                                        IdentifierName("Is"),
-                                                        IdentifierName("EqualTo")))
-                                                .WithArgumentList(
-                                                    ArgumentList(
-                                                        SingletonSeparatedList<ArgumentSyntax>(
-                                                            Argument(
-                                                                IdentifierName("expected"))))))
-                                    }))))
+                InvocationExpression(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            IdentifierName(
+                                Identifier(
+                                    TriviaList(
+                                        Whitespace("            ")),
+                                    "Assert",
+                                    TriviaList())),
+                            IdentifierName("AreEqual")))
+                    .WithArgumentList(
+                        ArgumentList(
+                            SeparatedList<ArgumentSyntax>(
+                                new SyntaxNodeOrToken[]{
+                                    Argument(
+                                        IdentifierName("actual")),
+                                    Token(
+                                        TriviaList(),
+                                        SyntaxKind.CommaToken,
+                                        TriviaList(
+                                            Space)),
+                                    Argument(
+                                        IdentifierName("expected"))}))))
                 .WithSemicolonToken(
                     Token(
                         TriviaList(),
