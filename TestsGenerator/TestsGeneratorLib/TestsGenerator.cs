@@ -50,7 +50,7 @@ public class TestsGenerator
         IList<ClassDeclarationInfo> infos = GetClassDeclarations(content);
 
         return infos.Select(i =>
-        new TestClassInfo(i.ClassName, CreateTestClass(i)))
+        new TestClassInfo(i.ClassName + "Tests", CreateTestClass(i)))
             .ToList();
     }
 
