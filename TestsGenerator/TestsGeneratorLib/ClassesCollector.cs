@@ -8,6 +8,8 @@ public class ClassesCollector : CSharpSyntaxWalker {
     public IList<ClassDeclarationInfo> ClassesInfo
     { get; } = new List<ClassDeclarationInfo>();
 
+    private string? _namespace = null;
+    
     private bool IsInterfaceIdentifier(string identifier)
     {
         return identifier.StartsWith('I')
@@ -26,6 +28,9 @@ public class ClassesCollector : CSharpSyntaxWalker {
         try
         {
             parameters = constructor.ChildNodes()
+                .OfType<ParameterListSyntax>()
+                .First()
+                .ChildNodes()
                 .OfType<ParameterSyntax>()
                 .Select(n => 
                     new ParameterInfo(
@@ -52,7 +57,27 @@ public class ClassesCollector : CSharpSyntaxWalker {
         }
 
         return new ConstructorInfo(parameters);
-    }        
+    }
+
+    public override void VisitFileScopedNamespaceDeclaration(FileScopedNamespaceDeclarationSyntax node)
+    {
+        _namespace = node.Name.ToString();
+
+        foreach (var childNode in node.ChildNodes())
+        {
+            Visit(childNode);
+        }
+    }
+
+    public override void VisitNamespaceDeclaration(NamespaceDeclarationSyntax node)
+    {
+        _namespace = node.Name.ToString();
+        
+        foreach (var childNode in node.ChildNodes())
+        {
+            Visit(childNode);
+        }
+    }
 
     public override void VisitClassDeclaration(ClassDeclarationSyntax node)
     {
@@ -61,7 +86,7 @@ public class ClassesCollector : CSharpSyntaxWalker {
             .First(token => token.IsKind(SyntaxKind.IdentifierToken));
 
         var constructors = node
-            .ChildNodes()
+            .DescendantNodes()
             .OfType<ConstructorDeclarationSyntax>();
 
         ConstructorInfo? constructorInfo = null;
@@ -101,6 +126,7 @@ public class ClassesCollector : CSharpSyntaxWalker {
 
         ClassesInfo.Add(
             new ClassDeclarationInfo(
+                _namespace!,
                 className.ToString(),
                 methods,
                 constructorInfo
