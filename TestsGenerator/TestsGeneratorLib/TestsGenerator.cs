@@ -528,7 +528,7 @@ public class TestsGenerator
                     AttributeList(
                         SingletonSeparatedList<AttributeSyntax>(
                             Attribute(
-                                IdentifierName("TestInitialization"))))
+                                IdentifierName("TestInitialize"))))
                     .WithOpenBracketToken(
                         Token(
                             TriviaList(
