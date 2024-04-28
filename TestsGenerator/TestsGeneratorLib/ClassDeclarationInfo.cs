@@ -16,13 +16,6 @@ public struct ClassDeclarationInfo
 
     public ConstructorInfo? ConstructorInfo;
 
-    public ClassDeclarationInfo(string className, IList<MethodDeclarationInfo> methods, ConstructorInfo? constructorInfo)
-    {
-        ClassName = className;
-        Methods = methods;
-        ConstructorInfo = constructorInfo;
-    }
-    
     public ClassDeclarationInfo(string namepsace, string className, IList<MethodDeclarationInfo> methods, ConstructorInfo? constructorInfo)
     {
         ClassName = className;
