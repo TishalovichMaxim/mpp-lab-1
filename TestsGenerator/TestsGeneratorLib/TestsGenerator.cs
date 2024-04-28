@@ -358,7 +358,7 @@ public class TestsGenerator
         ];
     }
     
-    public IEnumerable<FieldDeclarationSyntax> CreateFieldDeclarations(List<ParameterInfo> parameters, FieldInfo classFieldInfo)
+    public IEnumerable<FieldDeclarationSyntax> CreateFieldDeclarations(List<FieldInfo> parameters, FieldInfo classFieldInfo)
     {
         List<FieldDeclarationSyntax> res = parameters.Select( param =>
             FieldDeclaration(
@@ -775,12 +775,12 @@ public class TestsGenerator
             List<FieldInfo> classFields = classInfo
                 .ConstructorInfo!.Value
                 .Params
-                .Select(p => new FieldInfo(p.Type, p.Name))
+                .Select(p => new FieldInfo(p.Type, "_" + p.Name))
                 .ToList();
 
             classMembers.AddRange(
                 CreateFieldDeclarations(
-                    classInfo.ConstructorInfo!.Value.Params,
+                    classFields,
                     classFieldInfo
                 ).ToList()
             );
