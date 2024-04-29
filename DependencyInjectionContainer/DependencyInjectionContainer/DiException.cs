@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DependencyInjectionContainer
+namespace DependencyInjectionContainer;
+
+public class DiException : Exception
 {
-    internal class DiException
+    public DiException(string message) : base(message)
     {
     }
-}
+} 
