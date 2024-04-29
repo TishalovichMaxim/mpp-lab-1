@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace DependencyInjectionContainer;
 
@@ -43,22 +44,9 @@ public class DependencyProvider
         throw new DiException($"It's impossible to implement {t}");
     }
 
-    private object? Resolve(Type t)
+    private object ResolveDependencyByGenerationInfo(GenerationInfo info)
     {
-        IList<GenerationInfo>? infoList;
-        if (!_config.TryGetValue(t, out infoList))
-        {
-            throw new DiException($"It's impossible to implement {t}");
-        }
-
-        if (infoList.Count > 1)
-        {
-            throw new DiException($"{infoList.Count} possible implementations for {t}");
-        }
-
-        GenerationInfo info = infoList[0];
-        
-        object res;
+        object? res;
         if (info.GenerationType == GenerationType.SINGLETON)
         {
             if (!_singletonObjects.TryGetValue(info.Source, out res))
@@ -75,6 +63,59 @@ public class DependencyProvider
         return res;
     }
 
+    private object GenerateAll(Type target, IList<GenerationInfo> implementations)
+    {
+        Type t = typeof(List<>);
+        Type newT = t.MakeGenericType([target]);
+
+        MethodInfo? method = newT.GetMethod("Add", BindingFlags.Public | BindingFlags.Instance);
+
+        ConstructorInfo? constructor = newT.GetConstructor([]);
+        object l = constructor!.Invoke([]);
+
+        foreach (GenerationInfo implementation in implementations)
+        {
+            method!.Invoke(l, [ResolveDependencyByGenerationInfo(implementation)]);
+        }
+
+        return l;
+    }
+    
+    private object? Resolve(Type t)
+    {
+        IList<GenerationInfo>? infoList;
+        if (!_config.TryGetValue(t, out infoList))
+        {
+            if (t.GetGenericTypeDefinition() != typeof(IEnumerable<>))
+            {
+                throw new DiException($"It's impossible to implement {t}");
+            }
+
+            if (t.GetGenericArguments().Length != 1)
+            {
+                throw new DiException($"It's impossible to implement {t}");
+            }
+
+            Type paramType = t.GetGenericArguments()[0];
+
+            if (!_config.TryGetValue(paramType, out var implementations))
+            {
+                throw new DiException($"It's impossible to implement {t}");
+            }
+
+            return GenerateAll(paramType, implementations);
+        }
+
+        if (infoList.Count > 1)
+        {
+            throw new DiException($"{infoList.Count} possible implementations for {t}");
+        }
+
+        GenerationInfo info = infoList[0];
+
+        return ResolveDependencyByGenerationInfo(info);
+    }
+    
     public T Resolve<T>()
     {
         return (T) Resolve(typeof(T));
@@ -87,5 +128,4 @@ public class DependencyProvider
 
         _config = config.mapper;
     }
-
 }
