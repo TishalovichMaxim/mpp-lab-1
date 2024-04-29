@@ -104,25 +104,24 @@ public class TestsGenerator
                             LineFeed)));
     }
 
-    public ArgumentListSyntax CreateMethodArgumentList(MethodDeclarationInfo methodInfo)
+    public ArgumentListSyntax CreateMethodArgumentList(IEnumerable<ParameterInfo> parameters)
     {
         return
             ArgumentList(
                 SeparatedList<ArgumentSyntax>(
-                    methodInfo
-                        .Parameters
-                        .SelectMany<ParameterInfo, SyntaxNodeOrToken>(i =>
-                        [
-                            Argument(
-                                IdentifierName(i.Name)),
-                            Token(
-                                TriviaList(),
-                                SyntaxKind.CommaToken,
-                                TriviaList(
-                                    Space))
-                        ])
-                        .Take(..^1)
-                        .ToArray()
+                    parameters
+                    .SelectMany<ParameterInfo, SyntaxNodeOrToken>(i =>
+                    [
+                        Argument(
+                            IdentifierName(i.Name)),
+                        Token(
+                            TriviaList(),
+                            SyntaxKind.CommaToken,
+                            TriviaList(
+                                Space))
+                    ])
+                    .Take(..^1)
+                    .ToArray()
                 )
             );
     }
@@ -141,7 +140,7 @@ public class TestsGenerator
         string classFieldName
         )
     {
-        ArgumentListSyntax methodArgs = CreateMethodArgumentList(methodInfo);
+        ArgumentListSyntax methodArgs = CreateMethodArgumentList(methodInfo.Parameters);
         
         return [
             ExpressionStatement(
@@ -176,7 +175,7 @@ public class TestsGenerator
         string classFieldName
         )
     {
-        ArgumentListSyntax methodArgs = CreateMethodArgumentList(methodInfo);
+        ArgumentListSyntax methodArgs = CreateMethodArgumentList(methodInfo.Parameters);
         
         return [ 
             LocalDeclarationStatement(
@@ -494,12 +493,25 @@ public class TestsGenerator
                     .WithArgumentList(
                         ArgumentList(
                             SeparatedList<ArgumentSyntax>(
-                                fields.Select(f =>
-                                Argument(
-                                    MemberAccessExpression(
-                                        SyntaxKind.SimpleMemberAccessExpression,
-                                        IdentifierName(f.Name),
-                                        IdentifierName("Object"))))))))
+                                fields.SelectMany<FieldInfo, SyntaxNodeOrToken>(f =>
+                                    [
+                                        Argument(
+                                            MemberAccessExpression(
+                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                IdentifierName(f.Name),
+                                                IdentifierName("Object")
+                                            )
+                                        ),
+                                        Token(
+                                            TriviaList(),
+                                            SyntaxKind.CommaToken,
+                                            TriviaList(Space)
+                                        )
+                                    ]
+                                )
+                                .Take(..^1)
+                                .ToArray()
+                            ))))
                 .WithOperatorToken(
                     Token(
                         TriviaList(),
@@ -711,9 +723,7 @@ public class TestsGenerator
                             Token(
                                 TriviaList(
                                     new []{
-                                        Whitespace("        "),
                                         LineFeed,
-                                        Whitespace("        "),
                                         LineFeed,
                                         Whitespace("        ")}),
                                 SyntaxKind.OpenBracketToken,
