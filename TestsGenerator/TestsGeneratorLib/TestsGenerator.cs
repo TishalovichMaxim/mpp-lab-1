@@ -941,7 +941,7 @@ public class TestsGenerator
                             ClassDeclaration(
                                 Identifier(
                                     TriviaList(),
-                                    classInfo.ClassName,
+                                    classInfo.ClassName + "Tests",
                                     TriviaList(
                                         LineFeed)))
                             .WithAttributeLists(

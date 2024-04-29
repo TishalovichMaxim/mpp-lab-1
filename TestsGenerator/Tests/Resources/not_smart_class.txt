@@ -8,7 +8,7 @@ using Tests.Input;
 namespace Tests.Input.Tests
 {
     [TestClass]
-    public class NotSmartClass
+    public class NotSmartClassTests
     {
         [TestMethod]
         public void DoSomethingTest()

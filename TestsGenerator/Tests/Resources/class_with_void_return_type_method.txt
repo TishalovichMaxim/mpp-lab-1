@@ -8,7 +8,7 @@ using Tests.Input;
 namespace Tests.Input.Tests
 {
     [TestClass]
-    public class ClassWithVoidReturnTypeMethod
+    public class ClassWithVoidReturnTypeMethodTests
     {
         private Mock<IDependency1> _dependency1;
         private Mock<IDependency2> _dependency2;
