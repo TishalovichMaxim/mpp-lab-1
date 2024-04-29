@@ -8,11 +8,10 @@ namespace DependencyInjectionContainer;
 
 internal struct GenerationInfo
 {
-
-    Type Source
+    public Type Source
     { get; }
 
-    GenerationType GenerationType
+    public GenerationType GenerationType
     { get; }
 
     public GenerationInfo(Type source, GenerationType generationType)
