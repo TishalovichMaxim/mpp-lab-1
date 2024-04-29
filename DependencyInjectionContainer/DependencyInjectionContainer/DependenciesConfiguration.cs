@@ -19,7 +19,7 @@ public class DependenciesConfiguration
 
     public void Register<T, S>(GenerationType generationType = GenerationType.SINGLETON)
     {
-        Register(typeof(T), typeof(S));
+        Register(typeof(T), typeof(S), generationType);
     }
 
 }
