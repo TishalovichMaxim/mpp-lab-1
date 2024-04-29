@@ -9,12 +9,17 @@ namespace DependencyInjectionContainer;
 public class DependenciesConfiguration
 {
 
-    internal readonly Dictionary<Type, GenerationInfo> mapper = new(); 
+    internal readonly Dictionary<Type, IList<GenerationInfo>> mapper = new(); 
 
     public void Register(Type target, Type source,
         GenerationType generationType = GenerationType.SINGLETON)
     {
-        mapper[target] = new GenerationInfo(source, generationType);
+        if (!mapper.ContainsKey(target))
+        {
+            mapper[target] = new List<GenerationInfo>();
+        }
+        
+        mapper[target].Add(new GenerationInfo(source, generationType));
     }
 
     public void Register<T, S>(GenerationType generationType = GenerationType.SINGLETON)
