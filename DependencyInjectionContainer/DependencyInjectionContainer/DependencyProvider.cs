@@ -9,6 +9,35 @@ public class DependencyProvider
 
     private Dictionary<Type, object> _singletonObjects = new();
 
+    private object? OpenGenericTest(Type t)
+    {
+        if (!t.IsGenericType)
+        {
+            return null;
+        }
+
+        Type genericType = t.GetGenericTypeDefinition();
+        Type[] genericArguments = t.GetGenericArguments();
+
+        IList<GenerationInfo>? implementations;
+        if (!_config.TryGetValue(genericType, out implementations))
+        {
+            return null;
+        }
+
+        if (implementations.Count != 1)
+        {
+            throw new DiException("There are several open generic implementations...");
+        }
+
+        GenerationInfo generationInfo = new GenerationInfo(
+            implementations[0].Source.MakeGenericType(genericArguments),
+            implementations[0].GenerationType 
+        );
+
+        return ResolveDependencyByGenerationInfo(generationInfo);
+    }
+    
     private object? TryGenerateObject(ConstructorInfo constructorInfo)
     {
         ParameterInfo[] paramInfos = constructorInfo.GetParameters();
