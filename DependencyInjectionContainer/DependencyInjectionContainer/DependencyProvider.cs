@@ -34,7 +34,7 @@ public class DependencyProvider
             implementations[0].Source.MakeGenericType(genericArguments),
             implementations[0].GenerationType 
         );
-
+        
         return ResolveDependencyByGenerationInfo(generationInfo);
     }
     
@@ -115,6 +115,18 @@ public class DependencyProvider
         IList<GenerationInfo>? infoList;
         if (!_config.TryGetValue(t, out infoList))
         {
+            
+            object? res = OpenGenericTest(t);
+            if (res != null)
+            {
+                return res;
+            }
+
+            if (!t.IsGenericType)
+            {
+                throw new DiException($"It's impossible to implement {t}");
+            }
+                
             if (t.GetGenericTypeDefinition() != typeof(IEnumerable<>))
             {
                 throw new DiException($"It's impossible to implement {t}");
