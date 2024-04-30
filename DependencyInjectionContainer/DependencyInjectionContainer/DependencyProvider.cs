@@ -46,7 +46,8 @@ public class DependencyProvider
 
         foreach (ParameterInfo paramInfo in paramInfos)
         {
-            object? param = Resolve(paramInfo.ParameterType);
+            DependencyKey? attribute = paramInfo.GetCustomAttribute<DependencyKey>();
+            object? param = Resolve(paramInfo.ParameterType, attribute?.Qualifier);
             if (param == null)
             {
                 return null;
@@ -110,12 +111,11 @@ public class DependencyProvider
         return l;
     }
     
-    private object? Resolve(Type t)
+    private object? Resolve(Type t, string? qualifier)
     {
         IList<GenerationInfo>? infoList;
         if (!_config.TryGetValue(t, out infoList))
         {
-            
             object? res = OpenGenericTest(t);
             if (res != null)
             {
@@ -149,7 +149,18 @@ public class DependencyProvider
 
         if (infoList.Count > 1)
         {
-            throw new DiException($"{infoList.Count} possible implementations for {t}");
+            if (qualifier == null)
+            {
+                throw new DiException($"{infoList.Count} possible implementations for {t}");
+            }
+            
+            IList<GenerationInfo> qualifiedGenInfo = infoList.Where(info => qualifier.Equals(info.Qualifier)).ToList();
+            if (qualifiedGenInfo.Count != 1)
+            {
+                throw new DiException($"There is no suitable dependency with qualifier {qualifier}");
+            }
+
+            return ResolveDependencyByGenerationInfo(qualifiedGenInfo.First());
         }
 
         GenerationInfo info = infoList[0];
@@ -157,9 +168,9 @@ public class DependencyProvider
         return ResolveDependencyByGenerationInfo(info);
     }
     
-    public T Resolve<T>()
+    public T Resolve<T>(string? qualifier = null)
     {
-        return (T) Resolve(typeof(T));
+        return (T) Resolve(typeof(T), qualifier);
     }
 
     public DependencyProvider(DependenciesConfiguration config)

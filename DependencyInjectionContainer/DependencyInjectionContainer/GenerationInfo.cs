@@ -13,10 +13,14 @@ internal struct GenerationInfo
 
     public GenerationType GenerationType
     { get; }
+    
+    public string? Qualifier
+    { get; }
 
-    public GenerationInfo(Type source, GenerationType generationType)
+    public GenerationInfo(Type source, GenerationType generationType, string? qualifier = null)
     {
         Source = source;
         GenerationType = generationType;
+        Qualifier = qualifier;
     }
 }
