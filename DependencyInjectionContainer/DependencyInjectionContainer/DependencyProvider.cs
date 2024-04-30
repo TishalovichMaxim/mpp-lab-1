@@ -46,7 +46,7 @@ public class DependencyProvider
 
         foreach (ParameterInfo paramInfo in paramInfos)
         {
-            object? param = Generate(paramInfo.ParameterType);
+            object? param = Resolve(paramInfo.ParameterType);
             if (param == null)
             {
                 return null;
