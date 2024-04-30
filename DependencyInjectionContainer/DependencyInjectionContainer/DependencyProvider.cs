@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Concurrent;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace DependencyInjectionContainer;
@@ -7,7 +8,7 @@ public class DependencyProvider
 {
     private IDictionary<Type, IList<GenerationInfo>> _config;
 
-    private Dictionary<Type, object> _singletonObjects = new();
+    private ConcurrentDictionary<Type, object> _singletonObjects = new();
 
     private object? OpenGenericTest(Type t)
     {
@@ -35,7 +36,7 @@ public class DependencyProvider
             implementations[0].GenerationType 
         );
         
-        return ResolveDependencyByGenerationInfo(generationInfo);
+        return ResolveDependencyByGenerationInfo(t, generationInfo);
     }
     
     private object? TryGenerateObject(ConstructorInfo constructorInfo)
@@ -74,23 +75,14 @@ public class DependencyProvider
         throw new DiException($"It's impossible to implement {t}");
     }
 
-    private object ResolveDependencyByGenerationInfo(GenerationInfo info)
+    private object ResolveDependencyByGenerationInfo(Type target, GenerationInfo info)
     {
-        object? res;
         if (info.GenerationType == GenerationType.SINGLETON)
         {
-            if (!_singletonObjects.TryGetValue(info.Source, out res))
-            {
-                res = Generate(info.Source);
-                _singletonObjects[info.Source] = res;
-            }
+            return _singletonObjects.GetOrAdd(target, Generate(info.Source));
         }
-        else
-        {
-            res = Generate(info.Source);
-        }
-
-        return res;
+        
+        return Generate(info.Source);
     }
 
     private object GenerateAll(Type target, IList<GenerationInfo> implementations)
@@ -105,7 +97,7 @@ public class DependencyProvider
 
         foreach (GenerationInfo implementation in implementations)
         {
-            method!.Invoke(l, [ResolveDependencyByGenerationInfo(implementation)]);
+            method!.Invoke(l, [ResolveDependencyByGenerationInfo(target, implementation)]);
         }
 
         return l;
@@ -160,12 +152,12 @@ public class DependencyProvider
                 throw new DiException($"There is no suitable dependency with qualifier {qualifier}");
             }
 
-            return ResolveDependencyByGenerationInfo(qualifiedGenInfo.First());
+            return ResolveDependencyByGenerationInfo(t, qualifiedGenInfo.First());
         }
 
         GenerationInfo info = infoList[0];
 
-        return ResolveDependencyByGenerationInfo(info);
+        return ResolveDependencyByGenerationInfo(t, info);
     }
     
     public T Resolve<T>(string? qualifier = null)
