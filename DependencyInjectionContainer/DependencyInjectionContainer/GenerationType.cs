@@ -8,6 +8,6 @@ namespace DependencyInjectionContainer;
 
 public enum GenerationType
 {
-    SINGLETON,
-    INST_PER_DEP
+    Singleton,
+    InstPerDep
 }

@@ -77,7 +77,7 @@ public class DependencyProvider
 
     private object ResolveDependencyByGenerationInfo(Type target, GenerationInfo info)
     {
-        if (info.GenerationType == GenerationType.SINGLETON)
+        if (info.GenerationType == GenerationType.Singleton)
         {
             return _singletonObjects.GetOrAdd(target, Generate(info.Source));
         }
